@@ -1,0 +1,22 @@
+#loginBox {
+    margin-top: 20px;
+}
+
+#loginBorder {
+    width: 30%;
+}
+
+#standard-basic {
+    width: 100%;
+}
+
+.middleCenter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+}
+
+.login {
+    width: 100%;
+}

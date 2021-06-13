@@ -1,0 +1,10 @@
+.flexMiddle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.examitem:hover{
+    background-color: antiquewhite;
+    cursor: pointer;
+}
