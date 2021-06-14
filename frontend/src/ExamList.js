@@ -50,7 +50,7 @@ const ExamList = ({ api_fetch, snackbar, cart, setcart }) => {
     };
 
     return (
-        <div className="flexMiddle" style={{ marginTop: "30px" }}>
+        <div className="flexMiddle" style={{ marginTop: "30px" ,width:"70%"}}>
             {!loading ? (
                 <div className="flexMiddle" style={{ width: "100%" }}>
                     <TextField style={{ width: "50%", }} id="lecture-search" label="Fach infos" type="text" onChange={(e) => filterlecture(e.target.value)} />

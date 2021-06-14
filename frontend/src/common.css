@@ -8,3 +8,11 @@
     background-color: antiquewhite;
     cursor: pointer;
 }
+
+.centerFlex{
+    display:flex;
+    flex-direction:row;
+    align-items:baseline;
+    align-content: stretch;
+    justify-content: space-between;
+}

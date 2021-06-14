@@ -18,7 +18,7 @@ const CartList = ({ cart, setcart, setincheckout, generateQr}) => {
     };
 
     return (
-        <div className="flexMiddle" style={{ marginTop: "30px" }}>
+        <div className="flexMiddle" style={{ marginTop: "30px" ,width:"30%"}}>
             <Typography variant="h6">
                 Im Einkaufswagen
             </Typography>

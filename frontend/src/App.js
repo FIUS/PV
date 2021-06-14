@@ -84,6 +84,8 @@ function App() {
     }
   }
 
+  const centerClassName = cart.length > 0 ? "centerFlex" : "flexMiddle"
+
   return (
     <div>
       <Header onLogOut={logoutCallback} token={loginToken} api_post={fetchAPI_POST} snackbar={openSnackbar} />
@@ -91,13 +93,13 @@ function App() {
         <Login snackbar={openSnackbar} onLogIn={setloginToken} />
         : (
           !incheckout ? (
-            <div>
-              {cart.length > 0 ?
-                <CartList cart={cart} setcart={setcart} setincheckout={setincheckout} generateQr={getQrCode}/> : ""
-              }
+            <div className={centerClassName}>
               <ExamList snackbar={openSnackbar} api_fetch={fetchAPI_GET} cart={cart} setcart={setcart} />
+              {cart.length > 0 ?
+                <CartList cart={cart} setcart={setcart} setincheckout={setincheckout} generateQr={getQrCode} /> : ""
+              }
             </div>
-          ) : <Checkout setInCheckout={setincheckout} qrUrl={qrUrl} setqrUrl={setqrUrl} setCart={setcart}/>
+          ) : <Checkout setInCheckout={setincheckout} qrUrl={qrUrl} setqrUrl={setqrUrl} setCart={setcart} />
 
         )
       }
