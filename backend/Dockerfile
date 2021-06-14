@@ -7,6 +7,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN python ./nextcloud-API/setup.py install
+RUN cd nextcloud-API
+RUN python setup.py install
+RUN cd ..
 
 CMD [ "python", "./main.py" ]
