@@ -14,7 +14,7 @@ import ExamItem from './ExamItem';
 import { useState, useEffect } from 'react'
 import './common.css'
 
-const ExamList = ({ api_fetch, snackbar ,cart,setcart}) => {
+const ExamList = ({ api_fetch, snackbar, cart, setcart }) => {
 
     const [lectures, setlectures] = useState([])
     const [lecturesDisplayed, setlecturesDisplayed] = useState([])
@@ -23,7 +23,7 @@ const ExamList = ({ api_fetch, snackbar ,cart,setcart}) => {
     useEffect(() => {
         const load = async () => {
             setloading(true)
-            const lec = await api_fetch("http://fius-hawkeye:9201/lectures")
+            const lec = await api_fetch("http://localhost:5000/lectures")
             setloading(false)
             if (lec.code === 200) {
 
@@ -36,7 +36,7 @@ const ExamList = ({ api_fetch, snackbar ,cart,setcart}) => {
 
         load()
 
-    },[])
+    }, [])
 
     const filterlecture = (text) => {
         setlecturesDisplayed(lectures.filter((item) => {
@@ -50,9 +50,9 @@ const ExamList = ({ api_fetch, snackbar ,cart,setcart}) => {
     };
 
     return (
-        <div className="flexMiddle" style={{marginTop:"30px"}}>
+        <div className="flexMiddle" style={{ marginTop: "30px" }}>
             {!loading ? (
-                <div className="flexMiddle"style={{width:"100%"}}>
+                <div className="flexMiddle" style={{ width: "100%" }}>
                     <TextField style={{ width: "50%", }} id="lecture-search" label="Fach infos" type="text" onChange={(e) => filterlecture(e.target.value)} />
 
                     <TableContainer style={{ marginTop: "20px", width: "90%" }} component={Paper}>
@@ -66,13 +66,13 @@ const ExamList = ({ api_fetch, snackbar ,cart,setcart}) => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {lecturesDisplayed.map((lec) => <ExamItem key={lec.name} lecture={lec.name} short={lec.short} prof={lec.prof} note={lec.note} cart={cart} setcart={setcart}/>)}
+                                {lecturesDisplayed.map((lec) => <ExamItem key={lec.id} id={lec.id} lecture={lec.name} short={lec.short} prof={lec.prof} note={lec.note} cart={cart} setcart={setcart} />)}
                             </TableBody>
                         </Table>
                     </TableContainer>
                 </div>) : (
                 <div className="flexMiddle">
-                    <Typography variant="h6" style={{marginBottom:"20px"}}>
+                    <Typography variant="h6" style={{ marginBottom: "20px" }}>
                         Lade Prüfungen, bitte warten...
                     </Typography>
                     <CircularProgress />

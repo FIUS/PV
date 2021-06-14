@@ -3,18 +3,18 @@ import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import './common.css';
 
-const ExamItem = ({ lecture, short, prof, note, cart, setcart }) => {
+const ExamItem = ({ id, lecture, short, prof, note, cart, setcart }) => {
 
     const addItem = () => {
         if (!isInCart) {
-            setcart([...cart, lecture])
-        }else{
-            setcart([...cart].filter((item) => item !== lecture))
+            setcart([...cart, [id, lecture]])
+        } else {
+            setcart([...cart].filter((item) => item !== [id, lecture]))
         }
     }
 
-    const isInCart = [...cart].includes(lecture)
-    const itemcolor = [...cart].includes(lecture) ? "#a2cf6e" : ""
+    const isInCart = [...cart].some(item => item[0] === id)
+    const itemcolor = isInCart ? "#a2cf6e" : ""
 
     return (
         <TableRow className="examitem" style={{ backgroundColor: itemcolor }} onDoubleClick={() => addItem()} >

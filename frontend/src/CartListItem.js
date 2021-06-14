@@ -13,7 +13,7 @@ const CartListItem = ({ lecture, cart, setcart }) => {
 
     return (
         <TableRow className="examitem">
-            <TableCell component="th" scope="row">  {lecture}</TableCell>
+            <TableCell component="th" scope="row">  {lecture[1]}</TableCell>
             <TableCell align="right">
                 <Button onClick={() => deleteFromCart()}>
                     <DeleteForeverIcon />

@@ -25,7 +25,7 @@ def refresh_cache():
 @app.route('/lectures', methods=["GET"])
 def get_lectures():
     global lecture_cache
-    print(request.cookies.get('token'))
+    #print(request.cookies.get('token'))
     if lecture_cache:
         return util.build_response(lecture_cache)
     else:
@@ -45,8 +45,13 @@ def createToken():
 @app.route('/create/qr', methods=["POST"])
 def createQr():
     # request.headers.get('token')
-    time.sleep(5)
-    return util.build_response({"url":"fg-inf.de"})
+    global lecture_cache
+    print(request.json)
+    id=request.json[0]
+    if lecture_cache is None:
+        lecture_cache = wr.get_lectures()
+    link=wr.link_from_server(lecture_cache[id]["folder"])
+    return util.build_response({"url":link})
 
 
 app.run("0.0.0.0")
