@@ -17,7 +17,7 @@ function App() {
       {
         credentials: 'same-origin',
         method: "GET",
-        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "fius-hawkeye:5000/*" },
+        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": baseUrl+"/*" },
       });
     const status_code = resp.status
     if (status_code === 200) {
@@ -32,7 +32,7 @@ function App() {
   useEffect(() => {
     const load = async () => {
 
-      const resp = await fetchAPI("http://fius-hawkeye:5000/links?code=" + window.location.pathname.substr(1))
+      const resp = await fetchAPI("links?code=" + window.location.pathname.substr(1))
       console.log(resp)
       if (resp.code === 200) {
         setlinks(resp.content)

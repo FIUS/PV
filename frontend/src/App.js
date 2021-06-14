@@ -16,6 +16,8 @@ function App() {
   const [incheckout, setincheckout] = useState(false)
   const [qrUrl, setqrUrl] = useState("")
 
+  const baseUrl="https://api.fg-inf.de"
+
   function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
   }
@@ -38,11 +40,11 @@ function App() {
 
 
   const fetchAPI_GET = async (url) => {
-    const userInput = await fetch(url,
+    const userInput = await fetch(baseUrl+"/"+url,
       {
         credentials: 'same-origin',
         method: "GET",
-        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "fius-hawkeye:5000/*" },
+        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": baseUrl+"/*" },
       });
 
     const status_code = userInput.status
@@ -57,11 +59,12 @@ function App() {
   }
 
   const fetchAPI_POST = async (url, body) => {
-    const resp = await fetch(url,
+    
+    const resp = await fetch(baseUrl+"/"+url,
       {
         credentials: 'same-origin',
         method: "POST",
-        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "fius-hawkeye:5000/*" },
+        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": baseUrl+"/*" },
         body: JSON.stringify(body)
       });
     const status_code = resp.status
@@ -75,7 +78,7 @@ function App() {
   }
 
   const getQrCode = async () => {
-    const resp = await fetchAPI_POST("http://fius-hawkeye:5000/create/qr", cart.map(item => item[0]))
+    const resp = await fetchAPI_POST(baseUrl+"/create/qr", cart.map(item => item[0]))
     if (resp.code === 200) {
       setqrUrl(resp.content.url)
     } else {
@@ -90,7 +93,7 @@ function App() {
     <div>
       <Header onLogOut={logoutCallback} token={loginToken} api_post={fetchAPI_POST} snackbar={openSnackbar} />
       {loginToken === "" ?
-        <Login snackbar={openSnackbar} onLogIn={setloginToken} />
+        <Login baseUrl={baseUrl}snackbar={openSnackbar} onLogIn={setloginToken} />
         : (
           !incheckout ? (
             <div className={centerClassName}>

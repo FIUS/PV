@@ -23,7 +23,7 @@ const ExamList = ({ api_fetch, snackbar, cart, setcart }) => {
     useEffect(() => {
         const load = async () => {
             setloading(true)
-            const lec = await api_fetch("http://fius-hawkeye:5000/lectures")
+            const lec = await api_fetch("lectures")
             setloading(false)
             if (lec.code === 200) {
 
