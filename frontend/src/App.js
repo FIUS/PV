@@ -5,6 +5,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import Login from './Login'
 import ExamList from './ExamList';
 import CartList from './CartList';
+import Checkout from './Checkout';
 
 function App() {
   const [loginToken, setloginToken] = useState("");
@@ -12,6 +13,8 @@ function App() {
   const [snackbarText, setSnackbarText] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [cart, setcart] = useState([])
+  const [incheckout, setincheckout] = useState(false)
+  const [qrUrl, setqrUrl] = useState("")
 
   function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -37,6 +40,7 @@ function App() {
   const fetchAPI_GET = async (url) => {
     const userInput = await fetch(url,
       {
+        credentials: 'same-origin',
         method: "GET",
         headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "localhost:5000/*" },
       });
@@ -55,6 +59,7 @@ function App() {
   const fetchAPI_POST = async (url, body) => {
     const resp = await fetch(url,
       {
+        credentials: 'same-origin',
         method: "POST",
         headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "localhost:5000/*" },
         body: JSON.stringify(body)
@@ -69,18 +74,32 @@ function App() {
     }
   }
 
+  const getQrCode = async () => {
+    const resp = await fetchAPI_POST("http://localhost:5000/create/qr", null)
+    if (resp.code === 200) {
+      setqrUrl(resp.content.url)
+    } else {
+      snackbarOpen("Something went wrong while creating the qr-code", "error")
+      setincheckout(false)
+    }
+  }
+
   return (
     <div>
       <Header onLogOut={logoutCallback} token={loginToken} api_post={fetchAPI_POST} snackbar={openSnackbar} />
       {loginToken === "" ?
         <Login snackbar={openSnackbar} onLogIn={setloginToken} />
         : (
-          <div>
-            {cart.length > 0 ?
-              <CartList cart={cart} setcart={setcart} /> : ""
-            }
-            <ExamList snackbar={openSnackbar} api_fetch={fetchAPI_GET} cart={cart} setcart={setcart} />
-          </div>)
+          !incheckout ? (
+            <div>
+              {cart.length > 0 ?
+                <CartList cart={cart} setcart={setcart} setincheckout={setincheckout} generateQr={getQrCode}/> : ""
+              }
+              <ExamList snackbar={openSnackbar} api_fetch={fetchAPI_GET} cart={cart} setcart={setcart} />
+            </div>
+          ) : <Checkout setInCheckout={setincheckout} qrUrl={qrUrl} setqrUrl={setqrUrl} />
+
+        )
       }
 
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleClose}>

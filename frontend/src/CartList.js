@@ -9,9 +9,14 @@ import TableHead from '@material-ui/core/TableHead';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import CartListItem from './CartListItem';
+import Button from '@material-ui/core/Button';
 
+const CartList = ({ cart, setcart, setincheckout, generateQr}) => {
+    const checkout=()=>{
+        generateQr()
+        setincheckout(true)
+    };
 
-const CartList = ({ cart, setcart }) => {
     return (
         <div className="flexMiddle" style={{ marginTop: "30px" }}>
             <Typography variant="h6">
@@ -30,6 +35,7 @@ const CartList = ({ cart, setcart }) => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <Button onClick={() => checkout()} style={{ marginTop: "30px", backgroundColor: "#3f51b5", color: "white" }}>Checkout</Button>
         </div>
     )
 }

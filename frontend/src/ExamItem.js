@@ -14,7 +14,7 @@ const ExamItem = ({ lecture, short, prof, note, cart, setcart }) => {
     }
 
     const isInCart = [...cart].includes(lecture)
-    const itemcolor = [...cart].includes(lecture) ? "#a2cf6e" : "inherit"
+    const itemcolor = [...cart].includes(lecture) ? "#a2cf6e" : ""
 
     return (
         <TableRow className="examitem" style={{ backgroundColor: itemcolor }} onDoubleClick={() => addItem()} >
