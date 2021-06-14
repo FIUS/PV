@@ -27,7 +27,7 @@ export default function Header({ token, onLogOut, api_post, snackbar }) {
 
     const refresh_cache = async () => {
         setcaching(true)
-        const resp = await api_post("http://localhost:5000/refresh/cache", null)
+        const resp = await api_post("http://fius-hawkeye:5000/refresh/cache", null)
         setcaching(false)
         if (resp.code === 200) {
             snackbar("Cache refreshed", "success")

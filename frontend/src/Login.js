@@ -30,11 +30,11 @@ const Login = ({ onLogIn, snackbar }) => {
     };
 
     const getToken = async (password) => {
-        const resp = await fetch("http://localhost:5000/create/token",
+        const resp = await fetch("http://fius-hawkeye:5000/create/token",
             {
                 credentials: 'same-origin',
                 method: "POST",
-                headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "localhost:5000/*" },
+                headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "fius-hawkeye:5000/*" },
                 body: JSON.stringify({"password":password})
             });
         const status_code = resp.status

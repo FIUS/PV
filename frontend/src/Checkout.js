@@ -5,9 +5,10 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import './common.css'
 
-const Checkout = ({ setInCheckout, qrUrl ,setqrUrl}) => {
+const Checkout = ({ setInCheckout, qrUrl ,setqrUrl,setCart}) => {
     const back=()=>{
         setqrUrl("");
+        setCart([]);
         setInCheckout(false);
     }
 
