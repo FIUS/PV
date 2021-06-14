@@ -30,7 +30,7 @@ const Login = ({ onLogIn, snackbar }) => {
     };
 
     const getToken = async (password) => {
-        const resp = await fetch("http://localhost:5000/create/token",
+        const resp = await fetch("http://fius-hawkeye:5000/create/token",
             {
                 credentials: 'same-origin',
                 method: "POST",

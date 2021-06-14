@@ -42,7 +42,7 @@ function App() {
       {
         credentials: 'same-origin',
         method: "GET",
-        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "localhost:5000/*" },
+        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "fius-hawkeye:5000/*" },
       });
 
     const status_code = userInput.status
@@ -61,7 +61,7 @@ function App() {
       {
         credentials: 'same-origin',
         method: "POST",
-        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "localhost:5000/*" },
+        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "fius-hawkeye:5000/*" },
         body: JSON.stringify(body)
       });
     const status_code = resp.status
@@ -75,7 +75,7 @@ function App() {
   }
 
   const getQrCode = async () => {
-    const resp = await fetchAPI_POST("http://localhost:5000/create/qr", null)
+    const resp = await fetchAPI_POST("http://fius-hawkeye:5000/create/qr", null)
     if (resp.code === 200) {
       setqrUrl(resp.content.url)
     } else {
