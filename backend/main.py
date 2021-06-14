@@ -6,6 +6,7 @@ import time
 import util
 import os
 import secrets
+import string
 
 app = Flask(__name__)
 CORS(app)
@@ -34,6 +35,10 @@ def get_lectures():
         lecture_cache = wr.get_lectures()
         return util.build_response(lecture_cache)
 
+@app.route('/links', methods=["GET"])
+def get_links():
+    print(request.args["code"])
+    return util.build_response(link_cache[request.args["code"]])
 
 @app.route('/create/token', methods=["POST"])
 def createToken():
@@ -56,10 +61,13 @@ def createQr():
     for id in request.json:
         link = wr.link_from_server(lecture_cache[id]["folder"])
         print("Link generated:", link)
-        links.append(link)
-    secret = str(secrets.randbelow(2**256))
+        links.append([lecture_cache[id]["name"],link])
+    secret=""
+    print(string.ascii_letters)
+    for i in range(12):
+        secret += string.ascii_letters[secrets.randbelow(52)]
     link_cache[secret] = links
-    return util.build_response({"url": "fius-hawkeye:5000/links?secret="+secret})
+    return util.build_response({"url": "http://fius-hawkeye:3001/"+secret})
 
 
 app.run("0.0.0.0")

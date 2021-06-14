@@ -17,6 +17,9 @@ const Checkout = ({ setInCheckout, qrUrl ,setqrUrl,setCart}) => {
             {qrUrl !== "" ? (
                 <div className="flexMiddle" style={{marginTop:"30px"}}>
                     <QRCode value={qrUrl} />
+                    <Typography variant="h6" style={{marginTop:"20px"}}>
+                        <a href={qrUrl}>{qrUrl}</a>
+                    </Typography>
                     <Button onClick={()=>back()} style={{marginTop:"20px"}}>Zurück</Button>
                 </div>) : (
                 <div className="flexMiddle">

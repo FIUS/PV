@@ -59,6 +59,7 @@ const ExamList = ({ api_fetch, snackbar, cart, setcart }) => {
                         <Table aria-label="simple table">
                             <TableHead>
                                 <TableRow>
+                                    <TableCell></TableCell>
                                     <TableCell>Fach</TableCell>
                                     <TableCell align="right">Kürzel</TableCell>
                                     <TableCell align="right">Prof</TableCell>
