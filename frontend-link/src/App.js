@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 function App() {
 
   const [links, setlinks] = useState([])
-
+  const baseUrl="https://api.pv.fg-inf.de"
   const fetchAPI = async (url) => {
     const resp = await fetch(url,
       {
@@ -32,7 +32,7 @@ function App() {
   useEffect(() => {
     const load = async () => {
 
-      const resp = await fetchAPI("links?code=" + window.location.pathname.substr(1))
+      const resp = await fetchAPI(baseUrl+"/links?code=" + window.location.pathname.substr(1))
       console.log(resp)
       if (resp.code === 200) {
         setlinks(resp.content)

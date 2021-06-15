@@ -16,7 +16,7 @@ function App() {
   const [incheckout, setincheckout] = useState(false)
   const [qrUrl, setqrUrl] = useState("")
 
-  const baseUrl="https://api.fg-inf.de"
+  const baseUrl="https://api.pv.fg-inf.de"
 
   function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -78,7 +78,7 @@ function App() {
   }
 
   const getQrCode = async () => {
-    const resp = await fetchAPI_POST(baseUrl+"/create/qr", cart.map(item => item[0]))
+    const resp = await fetchAPI_POST("create/qr", cart.map(item => item[0]))
     if (resp.code === 200) {
       setqrUrl(resp.content.url)
     } else {

@@ -67,7 +67,7 @@ def createQr():
     for i in range(12):
         secret += string.ascii_letters[secrets.randbelow(52)]
     link_cache[secret] = links
-    return util.build_response({"url": "http://fius-hawkeye:3001/"+secret})
+    return util.build_response({"url": "https://info.pv.fg-inf.de/"+secret})
 
 
 app.run("0.0.0.0")
