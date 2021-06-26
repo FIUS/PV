@@ -33,7 +33,7 @@ const Login = ({ onLogIn, snackbar,baseUrl }) => {
         console.log(baseUrl+"/create/token")
         const resp = await fetch(baseUrl+"/create/token",
             {
-                credentials: 'same-origin',
+                credentials: 'include',
                 method: "POST",
                 headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": baseUrl+"/*" },
                 body: JSON.stringify({"password":password})

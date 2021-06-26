@@ -1,5 +1,5 @@
 import Header from './Header'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import Login from './Login'
@@ -16,14 +16,23 @@ function App() {
   const [incheckout, setincheckout] = useState(false)
   const [qrUrl, setqrUrl] = useState("")
 
-  const baseUrl="https://api.pv.fg-inf.de"
+  const baseUrl = "https://api.pv.fg-inf.de"
 
   function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
   }
   const logoutCallback = () => {
-    setloginToken("");
-    console.log("Logged out")
+    const fetch = async () => {
+      const resp = await fetchAPI_GET("authenticated")
+      if (resp.code === 200) {
+        setloginToken("");
+        console.log("Logged out")
+      }else{
+        openSnackbar("Logout unsuccessfull", "error")
+      }
+    }
+    fetch()
+    
   };
   const openSnackbar = (text, state) => {
     setSnackbarState(state);
@@ -38,13 +47,24 @@ function App() {
     setSnackbarOpen(false)
   };
 
+  useEffect(() => {
+    const fetch = async () => {
+      const resp = await fetchAPI_GET("authenticated")
+      if (resp.code === 200) {
+        console.log("Restored session")
+        setloginToken("Old session")
+      }
+    }
+    fetch()
+
+  }, []);
 
   const fetchAPI_GET = async (url) => {
-    const userInput = await fetch(baseUrl+"/"+url,
+    const userInput = await fetch(baseUrl + "/" + url,
       {
-        credentials: 'same-origin',
+        credentials: 'include',
         method: "GET",
-        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": baseUrl+"/*" },
+        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": baseUrl + "/*" },
       });
 
     const status_code = userInput.status
@@ -53,18 +73,24 @@ function App() {
       const userJson = await userInput.json();
 
       return { code: status_code, content: userJson }
+    } else if (status_code === 403) {
+      if (loginToken !== "") {
+        openSnackbar("Token invalid", "error")
+        setloginToken("")
+      }
+      return { code: status_code }
     } else {
       return { code: status_code }
     }
   }
 
   const fetchAPI_POST = async (url, body) => {
-    
-    const resp = await fetch(baseUrl+"/"+url,
+
+    const resp = await fetch(baseUrl + "/" + url,
       {
-        credentials: 'same-origin',
+        credentials: 'include',
         method: "POST",
-        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": baseUrl+"/*" },
+        headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": baseUrl + "/*" },
         body: JSON.stringify(body)
       });
     const status_code = resp.status
@@ -72,6 +98,10 @@ function App() {
       const userJson = await resp.json();
 
       return { code: status_code, content: userJson }
+    } else if (status_code === 403) {
+      openSnackbar("Token invalid", "error")
+      setloginToken("")
+      return { code: status_code }
     } else {
       return { code: status_code }
     }
@@ -93,7 +123,7 @@ function App() {
     <div>
       <Header onLogOut={logoutCallback} token={loginToken} api_post={fetchAPI_POST} snackbar={openSnackbar} />
       {loginToken === "" ?
-        <Login baseUrl={baseUrl}snackbar={openSnackbar} onLogIn={setloginToken} />
+        <Login baseUrl={baseUrl} snackbar={openSnackbar} onLogIn={setloginToken} />
         : (
           !incheckout ? (
             <div className={centerClassName}>

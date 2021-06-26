@@ -11,4 +11,4 @@ RUN cd nextcloud-API && python setup.py install
 
 COPY . .
 
-CMD [ "python", "./main.py" ]
+CMD [ "python", "-u", "./main.py" ]
