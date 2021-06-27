@@ -10,7 +10,6 @@ class TokenManager:
         self.token_storage = dict()
 
     def check_token(self, token):
-        print(token,self.token_storage)
         if token in self.token_storage:
             stored_token = self.token_storage[token]
             if stored_token['time']+datetime.timedelta(hours=48) > datetime.datetime.utcnow():

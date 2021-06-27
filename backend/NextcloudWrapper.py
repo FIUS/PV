@@ -2,7 +2,8 @@ from urllib.parse import unquote
 from nextcloud import NextCloud
 from nextcloud.base import ShareType, datetime_to_expire_date
 import datetime
-
+import threading
+import time
 
 class NextcloudWrapper:
     def __init__(self, domain, username, password, remote_directory):
@@ -10,13 +11,41 @@ class NextcloudWrapper:
         self.username = username
         self.password = password
         self.remote_directory = remote_directory
+        self.folder_cache = dict()
 
         self.nc = NextCloud(domain, username, password, json_output=True)
 
+        self.last_folder_cache_refresh = datetime.datetime.fromtimestamp(0)
+        self.folder_cache = self.get_lectures()
+
+        self.link_cache = dict()
+        self.is_refreshing = False
+        self.refreshing_state = 0
+        self.last_link_cache_refresh = datetime.datetime.fromtimestamp(0)
+        threading.Thread(target=self.refresh_link_cache).start()
+
+    def refresh_link_cache(self):
+        print("Starting to refresh")
+        self.is_refreshing = True
+        for idx, folder in enumerate(self.folder_cache):
+            link = self.link_from_server(folder['folder'], 14)
+            self.link_cache[folder['folder']] = link
+
+            self.refreshing_state = idx
+            print("Cache:", idx, "/", len(self.folder_cache))
+
+        self.last_link_cache_refresh = datetime.datetime.now()
+        self.is_refreshing = False
+        print("Finished refreshing")
+
     def get_lectures(self):
+        if self.last_folder_cache_refresh+datetime.timedelta(hours=30) > datetime.datetime.utcnow():
+            return self.folder_cache
         files = self.__get_all_files()
         lectures = self.__filter_lectures(files)
-        return self.__get_clean_lecture_list(lectures)
+        self.folder_cache = self.__get_clean_lecture_list(lectures)
+        self.last_folder_cache_refresh = datetime.datetime.utcnow()
+        return self.folder_cache
 
     def __get_clean_lecture_list(self, lecture_list):
         output = list()
@@ -27,7 +56,7 @@ class NextcloudWrapper:
                 prof = self.__fix_strings(lecture["file"][3])
                 note = "None"
                 output.append({"id": idx, "name": name, "short": short,
-                               "prof": prof, "note": note,"folder": lecture["folder"]})
+                               "prof": prof, "note": note, "folder": lecture["folder"]})
             except:
                 print("Ein bob hat das namesschema falsch gemacht:", lecture)
         return output
@@ -69,6 +98,14 @@ class NextcloudWrapper:
         return input.replace("_", " ")
 
     def link_from_server(self, folder, expire_days=7):
+        if self.last_link_cache_refresh+datetime.timedelta(days=7) > datetime.datetime.utcnow():
+            return self.link_cache[folder]
+        else:
+            time.sleep(0.5)
+            if not self.is_refreshing:
+                self.is_refreshing = True
+                threading.Thread(target=self.refresh_link_cache).start()
+
         expire_date = datetime_to_expire_date(
             datetime.datetime.now() + datetime.timedelta(days=expire_days))
         link = self.nc.create_share(

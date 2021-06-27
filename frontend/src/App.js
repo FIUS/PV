@@ -15,6 +15,7 @@ function App() {
   const [cart, setcart] = useState([])
   const [incheckout, setincheckout] = useState(false)
   const [qrUrl, setqrUrl] = useState("")
+  const [secret, setsecret] = useState("")
 
   const baseUrl = "https://api.pv.fg-inf.de"
 
@@ -23,7 +24,7 @@ function App() {
   }
   const logoutCallback = () => {
     const fetch = async () => {
-      const resp = await fetchAPI_GET("authenticated")
+      const resp = await fetchAPI_POST("logout")
       if (resp.code === 200) {
         setloginToken("");
         console.log("Logged out")
@@ -110,6 +111,7 @@ function App() {
   const getQrCode = async () => {
     const resp = await fetchAPI_POST("create/qr", cart.map(item => item[0]))
     if (resp.code === 200) {
+      setsecret(resp.content.secret)
       setqrUrl(resp.content.url)
     } else {
       openSnackbar("Something went wrong while creating the qr-code", "error")
@@ -132,7 +134,7 @@ function App() {
                 <CartList cart={cart} setcart={setcart} setincheckout={setincheckout} generateQr={getQrCode} /> : ""
               }
             </div>
-          ) : <Checkout setInCheckout={setincheckout} qrUrl={qrUrl} setqrUrl={setqrUrl} setCart={setcart} />
+          ) : <Checkout secret={secret} setInCheckout={setincheckout} qrUrl={qrUrl} setqrUrl={setqrUrl} setCart={setcart} fetchAPI_GET={fetchAPI_GET}/>
 
         )
       }
