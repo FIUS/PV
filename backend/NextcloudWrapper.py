@@ -21,6 +21,7 @@ class NextcloudWrapper:
         self.link_cache = dict()
         self.is_refreshing = False
         self.refreshing_state = 0
+        self.refreshing_progress=0
         self.last_link_cache_refresh = datetime.datetime.fromtimestamp(0)
         threading.Thread(target=self.refresh_link_cache).start()
 
@@ -31,7 +32,9 @@ class NextcloudWrapper:
             link = self.link_from_server(folder['folder'], 14)
             self.link_cache[folder['folder']] = link
 
+            self.refreshing_progress=idx/len(self.folder_cache)
             self.refreshing_state = idx
+            
             print("Cache:", idx, "/", len(self.folder_cache))
 
         self.last_link_cache_refresh = datetime.datetime.now()

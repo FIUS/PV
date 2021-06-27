@@ -123,7 +123,7 @@ function App() {
 
   return (
     <div>
-      <Header onLogOut={logoutCallback} token={loginToken} api_post={fetchAPI_POST} snackbar={openSnackbar} />
+      <Header onLogOut={logoutCallback} token={loginToken} api_post={fetchAPI_POST} snackbar={openSnackbar} fetchAPI_GET={fetchAPI_GET}/>
       {loginToken === "" ?
         <Login baseUrl={baseUrl} snackbar={openSnackbar} onLogIn={setloginToken} />
         : (

@@ -64,7 +64,7 @@ const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GE
                         </TableContainer>
 
                     </div>
-                    <Button color="primary" onClick={() => back()} style={{ marginTop: "20px" }}>Zurück</Button>
+                    <Button onClick={() => back()} style={{ marginTop: "20px", backgroundColor: "#3f51b5", color: "white" }}>Zurück</Button>
                 </div>) : (
                 <div className="flexMiddle">
                     <Typography variant="h6" style={{ marginTop: "20px" }}>

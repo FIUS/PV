@@ -69,7 +69,7 @@ def createToken():
 @app.route('/logout', methods=["POST"])
 @authenticated
 def logout():
-    token_manager.delete_token()
+    token_manager.delete_token(request.cookies.get('token'))
     return util.build_response("OK")
 
 
@@ -77,6 +77,12 @@ def logout():
 @authenticated
 def is_authenticated():
     return util.build_response("OK")
+
+
+@app.route('/cache/state', methods=["GET"])
+@authenticated
+def cache_state():
+    return util.build_response({"isRefreshing": wr.is_refreshing, "progress": int(wr.refreshing_progress*100)})
 
 
 @app.route('/create/qr', methods=["POST"])
