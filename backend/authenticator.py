@@ -8,11 +8,12 @@ password = os.environ.get("webpage_password")
 class TokenManager:
     def __init__(self):
         self.token_storage = dict()
+        self.cookie_expires=int(os.environ.get("cookie_expire_time"))
 
     def check_token(self, token):
         if token in self.token_storage:
             stored_token = self.token_storage[token]
-            if stored_token['time']+datetime.timedelta(hours=48) > datetime.datetime.utcnow():
+            if stored_token['time']+datetime.timedelta(hours=self.cookie_expires) > datetime.datetime.utcnow():
                 return True
             else:
                 del(self.token_storage[token])
