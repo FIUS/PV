@@ -4,6 +4,7 @@ from flask_cors import CORS
 from NextcloudWrapper import NextcloudWrapper
 from functools import wraps
 import authenticator
+import database
 import time
 import util
 import os
@@ -18,6 +19,8 @@ wr = NextcloudWrapper(os.environ.get("url"),
                       os.environ.get("username"), os.environ.get("password"), os.environ.get("path"))
 link_cache = dict()
 token_manager = authenticator.TokenManager()
+database_manager = database.SQLiteWrapper()
+link_cache = database_manager.load_all_links()
 
 
 def authenticated(fn):
@@ -34,8 +37,8 @@ def authenticated(fn):
 @authenticated
 def refresh_cache():
     global lecture_cache
-    lecture_cache = wr.get_lectures()
-
+    lecture_cache = wr.get_lectures(True)
+    wr.refresh_link_cache_async()
     return util.build_response("OK")
 
 
@@ -101,6 +104,7 @@ def createQr():
     for i in range(12):
         secret += string.ascii_letters[secrets.randbelow(52)]
     link_cache[secret] = links
+    database_manager.store_links(secret, links,True)
     return util.build_response({"url": "https://info.pv.fg-inf.de/"+secret, "secret": secret})
 
 

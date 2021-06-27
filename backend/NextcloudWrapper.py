@@ -5,6 +5,7 @@ import datetime
 import threading
 import time
 
+
 class NextcloudWrapper:
     def __init__(self, domain, username, password, remote_directory):
         self.domain = domain
@@ -21,7 +22,7 @@ class NextcloudWrapper:
         self.link_cache = dict()
         self.is_refreshing = False
         self.refreshing_state = 0
-        self.refreshing_progress=0
+        self.refreshing_progress = 0
         self.last_link_cache_refresh = datetime.datetime.fromtimestamp(0)
         threading.Thread(target=self.refresh_link_cache).start()
 
@@ -29,20 +30,24 @@ class NextcloudWrapper:
         print("Starting to refresh")
         self.is_refreshing = True
         for idx, folder in enumerate(self.folder_cache):
-            link = self.link_from_server(folder['folder'], 14)
+            link = self.link_from_server(folder['folder'], 14, True)
             self.link_cache[folder['folder']] = link
 
-            self.refreshing_progress=idx/len(self.folder_cache)
+            self.refreshing_progress = idx/len(self.folder_cache)
             self.refreshing_state = idx
-            
+
             print("Cache:", idx, "/", len(self.folder_cache))
 
         self.last_link_cache_refresh = datetime.datetime.now()
         self.is_refreshing = False
         print("Finished refreshing")
 
-    def get_lectures(self):
-        if self.last_folder_cache_refresh+datetime.timedelta(hours=30) > datetime.datetime.utcnow():
+    def refresh_link_cache_async(self):
+        if not self.is_refreshing:
+            threading.Thread(target=self.refresh_link_cache).start()
+
+    def get_lectures(self, force_refresh=False):
+        if self.last_folder_cache_refresh+datetime.timedelta(hours=30) > datetime.datetime.utcnow() and not force_refresh:
             return self.folder_cache
         files = self.__get_all_files()
         lectures = self.__filter_lectures(files)
@@ -100,14 +105,15 @@ class NextcloudWrapper:
     def __fix_strings(self, input: str):
         return input.replace("_", " ")
 
-    def link_from_server(self, folder, expire_days=7):
-        if self.last_link_cache_refresh+datetime.timedelta(days=7) > datetime.datetime.utcnow():
-            return self.link_cache[folder]
-        else:
-            time.sleep(0.5)
-            if not self.is_refreshing:
-                self.is_refreshing = True
-                threading.Thread(target=self.refresh_link_cache).start()
+    def link_from_server(self, folder, expire_days=7, force_server_fetch=False):
+        if not force_server_fetch:
+            if self.last_link_cache_refresh+datetime.timedelta(days=7) > datetime.datetime.utcnow():
+                return self.link_cache[folder]
+            else:
+                time.sleep(0.5)
+                if not self.is_refreshing:
+                    self.is_refreshing = True
+                    threading.Thread(target=self.refresh_link_cache).start()
 
         expire_date = datetime_to_expire_date(
             datetime.datetime.now() + datetime.timedelta(days=expire_days))
