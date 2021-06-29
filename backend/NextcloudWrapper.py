@@ -1,3 +1,4 @@
+from typing import Counter
 from urllib.parse import unquote
 from nextcloud import NextCloud
 from nextcloud.base import ShareType, datetime_to_expire_date
@@ -57,14 +58,17 @@ class NextcloudWrapper:
 
     def __get_clean_lecture_list(self, lecture_list):
         output = list()
-        for idx, lecture in enumerate(lecture_list):
+        idx=0
+        for lecture in lecture_list:
             try:
                 name = self.__fix_strings(lecture["file"][1])
                 short = self.__fix_strings(lecture["file"][0])
                 prof = self.__fix_strings(lecture["file"][3])
-                note = "None"
+                note = "None"         
                 output.append({"id": idx, "name": name, "short": short,
                                "prof": prof, "note": note, "folder": lecture["folder"]})
+                idx+=1
+                
             except:
                 print("Ein bob hat das namesschema falsch gemacht:", lecture)
         return output
