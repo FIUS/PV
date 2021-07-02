@@ -13,7 +13,7 @@ import TableHead from '@material-ui/core/TableHead';
 import Paper from '@material-ui/core/Paper';
 import './common.css'
 
-const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GET }) => {
+const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GET, snackbar }) => {
     const back = () => {
         setqrUrl("");
         setCart([]);
@@ -27,11 +27,43 @@ const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GE
                 const resp = await fetchAPI_GET("links?code=" + secret)
                 if (resp.code === 200) {
                     setlinks(resp.content)
+                    console.log(resp.content)
+                    setTimeout(copyTable, 500)
                 }
             }
         }
         fetch()
     }, [secret]);
+
+
+    const copyTable = (retries = 0) => {
+        if (retries > 5) {
+            snackbar("Could not copy table!", "warning")
+            return
+        }
+        try {
+            var urlField = document.querySelector('table');
+
+            // create a Range object
+            var range = document.createRange();
+            // set the Node to select the "range"
+
+            range.selectNode(urlField);
+            // add the Range to the set of window selections
+            window.getSelection().addRange(range);
+
+            // execute 'copy', can't 'cut' in this case
+            document.execCommand('copy');
+            window.getSelection().empty()
+            snackbar("Table copied!", "success")
+        } catch (e) {
+            setTimeout(copyTable, 500, retries + 1)
+            console.log(e)
+        }
+
+
+
+    }
 
     return (
         <div>
@@ -43,7 +75,7 @@ const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GE
                     </Typography>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                         <TableContainer style={{ marginTop: "20px", width: "70%" }} component={Paper}>
-                            <Table aria-label="simple table">
+                            <Table aria-label="simple table" id="table">
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>Fachname</TableCell>

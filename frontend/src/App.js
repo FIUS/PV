@@ -134,7 +134,7 @@ function App() {
                 <CartList cart={cart} setcart={setcart} setincheckout={setincheckout} generateQr={getQrCode} /> : ""
               }
             </div>
-          ) : <Checkout secret={secret} setInCheckout={setincheckout} qrUrl={qrUrl} setqrUrl={setqrUrl} setCart={setcart} fetchAPI_GET={fetchAPI_GET}/>
+          ) : <Checkout secret={secret} setInCheckout={setincheckout} qrUrl={qrUrl} setqrUrl={setqrUrl} setCart={setcart} fetchAPI_GET={fetchAPI_GET} snackbar={openSnackbar}/>
 
         )
       }
