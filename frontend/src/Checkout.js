@@ -21,6 +21,16 @@ const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GE
     }
     const [links, setlinks] = useState([])
 
+    const print = (printParams) => {
+        fetch("http://localhost:6001/printPV",
+            {
+                credentials: 'include',
+                method: "POST",
+                headers: { "Content-type": "application/json", "Access-Control-Allow-Origin": "localhost/*" },
+                body: JSON.stringify(printParams)
+            });
+    }
+
     useEffect(() => {
         const fetch = async () => {
             if (secret !== "") {
@@ -28,6 +38,7 @@ const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GE
                 if (resp.code === 200) {
                     setlinks(resp.content)
                     console.log(resp.content)
+                    print({"news":["Neuer Klausurverleih","Lan Party 23.4."],"link":"https://info.pv.fg-inf.de/"+secret})
                     setTimeout(copyTable, 500)
                 }
             }
