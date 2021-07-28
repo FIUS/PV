@@ -11,6 +11,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import Paper from '@material-ui/core/Paper';
+import PrintIcon from '@material-ui/icons/Print';
 import './common.css'
 
 const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GET, snackbar }) => {
@@ -21,7 +22,7 @@ const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GE
     }
     const [links, setlinks] = useState([])
 
-    const print = (printParams) => {
+    const print = async (printParams) => {
         fetch("http://localhost:6001/printPV",
             {
                 credentials: 'include',
@@ -38,7 +39,6 @@ const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GE
                 if (resp.code === 200) {
                     setlinks(resp.content)
                     console.log(resp.content)
-                    print({"news":["Neuer Klausurverleih","Lan Party 23.4."],"link":"https://info.pv.fg-inf.de/"+secret})
                     setTimeout(copyTable, 500)
                 }
             }
@@ -80,6 +80,11 @@ const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GE
         <div>
             {qrUrl !== "" ? (
                 <div className="flexMiddle" style={{ marginTop: "30px" }}>
+                    <Paper elevation="2" style={{ marginBottom: "20px" }}>
+                        <Button style={{ width: "100px", height: "100px", backgroundColor: "#eeeeee" }} onClick={()=>print({ "link": "https://info.pv.fg-inf.de/" + secret })} >
+                            <PrintIcon style={{ width: "50px", height: "50px" }}></PrintIcon>
+                        </Button>
+                    </Paper>
                     <QRCode value={qrUrl} />
                     <Typography variant="h6" style={{ marginTop: "20px" }}>
                         <a href={qrUrl}>{qrUrl}</a>
