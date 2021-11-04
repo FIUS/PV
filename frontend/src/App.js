@@ -17,7 +17,7 @@ function App() {
   const [qrUrl, setqrUrl] = useState("")
   const [secret, setsecret] = useState("")
 
-  const baseUrl = "https://api.pv.fg-inf.de"
+  const baseUrl = "https://api.pv.fius.de"
 
   function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
