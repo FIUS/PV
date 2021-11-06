@@ -105,7 +105,7 @@ def createQr():
         secret += string.ascii_letters[secrets.randbelow(52)]
     link_cache[secret] = links
     database_manager.store_links(secret, links,True)
-    return util.build_response({"url": "https://info.pv.fg-inf.de/"+secret, "secret": secret})
+    return util.build_response({"url": "https://info.pv.fius.de/"+secret, "secret": secret})
 
 
 app.run("0.0.0.0")

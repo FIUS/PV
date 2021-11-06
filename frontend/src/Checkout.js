@@ -81,7 +81,7 @@ const Checkout = ({ setInCheckout, qrUrl, setqrUrl, setCart, secret, fetchAPI_GE
             {qrUrl !== "" ? (
                 <div className="flexMiddle" style={{ marginTop: "30px" }}>
                     <Paper elevation="2" style={{ marginBottom: "20px" }}>
-                        <Button style={{ width: "100px", height: "100px", backgroundColor: "#eeeeee" }} onClick={()=>print({ "link": "https://info.pv.fg-inf.de/" + secret })} >
+                        <Button style={{ width: "100px", height: "100px", backgroundColor: "#eeeeee" }} onClick={()=>print({ "link": "https://info.pv.fius.de/" + secret })} >
                             <PrintIcon style={{ width: "50px", height: "50px" }}></PrintIcon>
                         </Button>
                     </Paper>

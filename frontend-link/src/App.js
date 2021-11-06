@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 function App() {
 
   const [links, setlinks] = useState([])
-  const baseUrl="https://api.pv.fg-inf.de"
+  const baseUrl="https://api.pv.fius.de"
   const fetchAPI = async (url) => {
     const resp = await fetch(url,
       {
