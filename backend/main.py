@@ -63,9 +63,7 @@ def get_links():
 @app.route('/search/<string:search>', methods=["GET"])
 def get_links_search(search):
     global lecture_cache
-    if lecture_cache:
-        return util.build_response(lecture_cache)
-    else:
+    if not lecture_cache:
         lecture_cache = wr.get_lectures()
 
     lecture_with_ratio = []
