@@ -10,6 +10,7 @@ import util
 import os
 import secrets
 import string
+from difflib import SequenceMatcher
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -59,6 +60,42 @@ def get_links():
     return util.build_response(link_cache[request.args["code"]])
 
 
+@app.route('/search/<string:search>', methods=["GET"])
+def get_links_search(search):
+    global lecture_cache
+    if lecture_cache:
+        return util.build_response(lecture_cache)
+    else:
+        lecture_cache = wr.get_lectures()
+
+    lecture_with_ratio = []
+    for lecture in lecture_cache:
+        name = lecture['name']
+        id = lecture['id']
+        folder = lecture['folder']
+        lecture_with_ratio.append(
+            {'name': name, 'folder': folder, 'id': id, 'matching': SequenceMatcher(None, name, search).ratio()})
+
+    lecture_with_ratio.sort(key=lambda x: x['matching'])
+    lecture_with_ratio.reverse()
+
+    to_output = lecture_with_ratio[0]
+
+    links = list()
+
+    link = wr.link_from_server(to_output["folder"])
+    print("Link generated:", link)
+    links.append([to_output["name"], link])
+
+    secret = ""
+    for i in range(12):
+        secret += string.ascii_letters[secrets.randbelow(52)]
+    link_cache[secret] = links
+    database_manager.store_links(secret, links, True)
+
+    return util.build_response({"url": "https://info.pv.fius.de/"+secret, "secret": secret, "name": to_output["name"]})
+
+
 @app.route('/create/token', methods=["POST"])
 def createToken():
     post_data = request.json
@@ -104,7 +141,7 @@ def createQr():
     for i in range(12):
         secret += string.ascii_letters[secrets.randbelow(52)]
     link_cache[secret] = links
-    database_manager.store_links(secret, links,True)
+    database_manager.store_links(secret, links, True)
     return util.build_response({"url": "https://info.pv.fius.de/"+secret, "secret": secret})
 
 
