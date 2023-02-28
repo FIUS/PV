@@ -6,18 +6,15 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import style from './overview.module.scss'
-import { doGetRequest, doPostRequest, doRequest } from '../../Common/StaticFunctions';
+import { doGetRequest, doRequest } from '../../Common/StaticFunctions';
 import { useDispatch, useSelector } from 'react-redux';
 import { addShare as setShare, addToCart, openErrorToast, removeFromCart, setLectures } from '../../../Actions/CommonAction';
 import { CommonReducerType } from '../../../Reducer/CommonReducer';
 import { RootState } from '../../../Reducer/reducerCombiner';
-import { Button, Chip, Divider, IconButton, List, ListItem, MenuItem, Paper, Select, TextField, Typography } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import WarningIcon from '@mui/icons-material/Warning';
+import { Button, IconButton, MenuItem, Paper, Select, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { IDName, Lecture } from '../../../types/ResponseTypes';
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import { AddCircle } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 type Props = {}
