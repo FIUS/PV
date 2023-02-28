@@ -7,6 +7,15 @@
     justify-content: center;
 }
 
+.innerContainer {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    gap: $flex-gap;
+}
+
 .oneLine {
     display: flex;
     align-items: center;

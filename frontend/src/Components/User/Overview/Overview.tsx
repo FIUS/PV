@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -11,11 +11,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addShare as setShare, addToCart, openErrorToast, removeFromCart, setLectures } from '../../../Actions/CommonAction';
 import { CommonReducerType } from '../../../Reducer/CommonReducer';
 import { RootState } from '../../../Reducer/reducerCombiner';
-import { Button, Chip, Divider, IconButton, List, ListItem, Paper, Typography } from '@mui/material';
+import { Button, Chip, Divider, IconButton, List, ListItem, MenuItem, Paper, Select, TextField, Typography } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
 import { useNavigate } from 'react-router-dom';
-import { Lecture } from '../../../types/ResponseTypes';
+import { IDName, Lecture } from '../../../types/ResponseTypes';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import { AddCircle } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -31,7 +31,7 @@ const Overview = (props: Props) => {
             }
         })
     }, [dispatch])
-
+    const [search, setsearch] = useState("")
     const navigate = useNavigate()
     const common: CommonReducerType = useSelector((state: RootState) => state.common);
 
@@ -98,39 +98,67 @@ const Overview = (props: Props) => {
 
     return (
         <div className={style.container}>
-
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>
-                                Hinzufügen
-                            </TableCell>
-                            <TableCell >
-                                Modulname
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {common.lectures.map(lecture => {
-                            return <TableRow key={lecture.id} hover role="checkbox" className={style.mouseClick} onDoubleClick={() => { dispatch(addToCart(lecture.id)) }}>
+            <div className={style.innerContainer}>
+                <TextField fullWidth label="Suche" value={search} onChange={value => { setsearch(value.target.value) }} />
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
                                 <TableCell>
-                                    <IconButton onClick={() => { dispatch(addToCart(lecture.id)) }}>
-                                        <AddBoxIcon color='success' />
-                                    </IconButton>
+                                    Hinzufügen
                                 </TableCell>
-                                <TableCell  >
-                                    {lecture.name}
+                                <TableCell >
+                                    Modulname
+                                </TableCell>
+                                <TableCell >
+                                    Dozent(en)
                                 </TableCell>
                             </TableRow>
-                        })}
-
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                            {common.lectures.filter(lecture => {
+                                if (lecture.name.toLocaleLowerCase().replace(" ", "").includes(search.toLocaleLowerCase().replace(" ", ""))) {
+                                    return true;
+                                }
+                                if (lecture.persons.find(person => person.name.toLocaleLowerCase().replace(" ", "").includes(search.toLocaleLowerCase().replace(" ", ""))) !== undefined) {
+                                    return true;
+                                }
+                                if (lecture.aliases.find(alias => alias.name.toLocaleLowerCase().replace(" ", "").includes(search.toLocaleLowerCase().replace(" ", ""))) !== undefined) {
+                                    return true;
+                                }
+                                if (search === "") {
+                                    return true
+                                }
+                                return false
+                            }).map(lecture => {
+                                return <TableRow key={lecture.id} hover role="checkbox" className={style.mouseClick} onDoubleClick={() => { dispatch(addToCart(lecture.id)) }}>
+                                    <TableCell>
+                                        <IconButton onClick={() => { dispatch(addToCart(lecture.id)) }}>
+                                            <AddBoxIcon color='success' />
+                                        </IconButton>
+                                    </TableCell>
+                                    <TableCell  >
+                                        {lecture.name}
+                                    </TableCell>
+                                    <TableCell >
+                                        {lecture.persons.length > 0 ?
+                                            <Select
+                                                value={lecture.persons.sort((a: IDName, b: IDName) => b.id - a.id)[0].id}
+                                                variant='standard'
+                                                fullWidth
+                                            >
+                                                {lecture.persons.map(person => <MenuItem value={person.id}>{person.name}</MenuItem>)}
+                                            </Select> : <></>}
+                                    </TableCell>
+                                </TableRow>
+                            })}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </div>
             {cart()}
 
-        </div>
+        </div >
     )
 }
 
