@@ -93,7 +93,7 @@ const Checkout = () => {
                             <PrintIcon style={{ width: "50px", height: "50px" }}></PrintIcon>
                         </Button>
                     </Paper>
-                    <QRCode value={common.share.secret} />
+                    <QRCode value={window.location + "/" + common.share.secret} />
                     <Typography variant="h6" style={{ marginTop: "20px" }}>
                         <Link href={window.location + "/" + common.share.secret}>
                             {window.location + "/" + common.share.secret}
@@ -111,7 +111,7 @@ const Checkout = () => {
                                 <TableBody>
 
                                     {common.share.links.map((link) => (
-                                        <TableRow key={link.link} className="examitem">
+                                        <TableRow key={link.link}>
                                             <TableCell component="th" scope="row">{link.name}</TableCell>
                                             <TableCell>
                                                 <Link href={link.link}>

@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { openErrorToast } from '../../../Actions/CommonAction';
-import { CommonReducerType } from '../../../Reducer/CommonReducer';
-import { RootState } from '../../../Reducer/reducerCombiner';
 import { Share } from '../../../types/ResponseTypes';
 import { doGetRequest } from '../../Common/StaticFunctions';
 import Table from '@mui/material/Table';
@@ -31,7 +29,7 @@ const LinkView = (props: Props) => {
                 dispatch(openErrorToast())
             }
         })
-    }, [])
+    }, [dispatch, id])
 
 
     return (<div style={{ "margin": "10px" }}>

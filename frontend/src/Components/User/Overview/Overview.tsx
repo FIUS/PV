@@ -128,7 +128,11 @@ const Overview = (props: Props) => {
                                 }
                                 return false
                             }).map(lecture => {
-                                return <TableRow key={lecture.id} hover role="checkbox" className={style.mouseClick} onDoubleClick={() => { dispatch(addToCart(lecture.id)) }}>
+                                return <TableRow key={lecture.id}
+                                    hover
+                                    role="checkbox"
+                                    className={style.mouseClick + " " + (common.cart.includes(lecture.id) ? style.highlighted : "")}
+                                    onDoubleClick={() => { dispatch(addToCart(lecture.id)) }}>
                                     <TableCell>
                                         <IconButton onClick={() => { dispatch(addToCart(lecture.id)) }}>
                                             <AddBoxIcon color='success' />

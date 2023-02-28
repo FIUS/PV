@@ -3,13 +3,14 @@ import { AppBar, Button, IconButton, Toolbar } from '@mui/material'
 import React, { useState } from 'react'
 import Spacer from '../Spacer'
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { CommonReducerType } from '../../../Reducer/CommonReducer';
 import { doPostRequest } from '../StaticFunctions';
 import { RootState } from '../../../Reducer/reducerCombiner';
 import InfoIcon from '@mui/icons-material/Info';
 import About from './About';
 import Cookies from 'js-cookie';
+import { clearCart } from '../../../Actions/CommonAction';
 
 type Props = {}
 
@@ -19,7 +20,7 @@ const TopBar = (props: Props) => {
     const location = useLocation();
     const common: CommonReducerType = useSelector((state: RootState) => state.common);
     const [aboutDialogOpen, setaboutDialogOpen] = useState(false)
-
+    const dispatch = useDispatch();
 
     const navigationButton = () => {
         if (location.pathname.startsWith("/admin")) {
@@ -50,8 +51,10 @@ const TopBar = (props: Props) => {
                         <Button
                             size="large"
                             color="inherit"
-                            onClick={() =>
+                            onClick={() => {
+                                dispatch(clearCart());
                                 navigate(isUser() !== 1 && isUser() !== 2 ? "/user/" + isUser() : "/")
+                            }
                             }
                             sx={{ display: "inline-flex" }}
                             variant="text">
