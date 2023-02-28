@@ -58,7 +58,7 @@
     ]
   },
   "devDependencies": {
-    "@types/js-cookie": "^3.0.2",
+    "@types/js-cookie": "^3.0.3",
     "redux-devtools-extension": "^2.13.9",
     "typescript-plugin-css-modules": "^3.4.0"
   }
