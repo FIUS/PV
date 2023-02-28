@@ -27,6 +27,7 @@ with app.app_context():
     db = Queries.Queries(sql_database)
 
 taskScheduler = TaskScheduler.TaskScheduler()
+taskScheduler.add_Weekly_Task(db.create_Links)
 taskScheduler.start()
 
 

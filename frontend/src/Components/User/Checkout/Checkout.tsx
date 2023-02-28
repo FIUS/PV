@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import QRCode from "react-qr-code";
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -17,7 +17,7 @@ import { RootState } from '../../../Reducer/reducerCombiner';
 
 import style from './checkout.module.scss'
 import { Link } from '@mui/material';
-import { clearCart, openErrorToast, openToast } from '../../../Actions/CommonAction';
+import { clearCart, openToast } from '../../../Actions/CommonAction';
 import { useNavigate } from 'react-router-dom';
 
 const Checkout = () => {
@@ -41,8 +41,7 @@ const Checkout = () => {
             });
     }
 
-    const copyTable = (retries = 0) => {
-
+    const copyTable = useCallback((retries: number) => {
         if (retries > 5) {
             dispatch(openToast({ message: "Could not copy table!", type: "error" }))
             return
@@ -74,12 +73,14 @@ const Checkout = () => {
             setTimeout(copyTable, 500, retries + 1)
             console.log(e)
         }
-    }
+
+    }, [dispatch]);
+
     useEffect(() => {
         if (common.share !== null && tableRef !== null) {
-            copyTable()
+            copyTable(0)
         }
-    }, [common.share, tableRef])
+    }, [common.share, tableRef, copyTable])
 
     return (
         <div>
