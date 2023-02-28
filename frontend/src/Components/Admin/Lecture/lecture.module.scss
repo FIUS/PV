@@ -1,0 +1,30 @@
+@import "../../Common/variables.module.scss";
+
+.container {
+    padding: $padding;
+}
+.textContainer {
+    display: flex;
+    gap: $flex-gap;
+    flex-direction: column;
+}
+.headline {
+    display: flex;
+    align-items: center;
+    gap: $flex-gap;
+}
+
+.list {
+    max-width: 400px;
+}
+
+.lowerContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: $flex-gap;
+}
+
+.autocomplete {
+    min-width: 150px;
+}

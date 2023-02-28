@@ -1,0 +1,36 @@
+@import "../../Common/variables.module.scss";
+
+.container {
+    width: 100%;
+    padding: $padding;
+    display: flex;
+    justify-content: center;
+}
+
+.innerContainer {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    gap: $flex-gap;
+}
+
+.oneLine {
+    display: flex;
+    align-items: center;
+    gap: $flex-gap;
+}
+
+.mouseClick {
+    cursor: pointer;
+}
+
+.cart {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $flex-gap;
+    margin-left: calc($padding * 4);
+}

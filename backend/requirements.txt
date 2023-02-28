@@ -1,3 +1,10 @@
 flask
 flask-cors
 urllib3
+schedule
+flask_sqlalchemy
+psycopg2
+waitress
+requests
+flask-restx
+werkzeug

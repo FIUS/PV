@@ -1,3 +1,0 @@
-[submodule "backend/nextcloud-API"]
-	path = backend/nextcloud-API
-	url = https://github.com/matejak/nextcloud-API.git

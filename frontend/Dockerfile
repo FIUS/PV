@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:18-alpine
 
 # set working directory
 WORKDIR /app
@@ -19,4 +19,4 @@ COPY . ./
 RUN npm run build 
 
 # start app
-CMD ["serve", "-s", "build", "-l", "3000"]
+CMD ["serve", "-s", "build", "-l", "80"]

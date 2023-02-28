@@ -1,0 +1,18 @@
+@import "../../Common/variables.module.scss";
+
+.container {
+    width: 100%;
+    padding: $padding;
+    display: flex;
+    justify-content: center;
+}
+
+.oneLine {
+    display: flex;
+    align-items: center;
+    gap: $flex-gap;
+}
+
+.mouseClick {
+    cursor: pointer;
+}

@@ -1,146 +1,200 @@
-from flask import Flask
+from difflib import SequenceMatcher
+from datetime import datetime, timedelta
+import os
+from statistics import mode
+import TaskScheduler
+from flask import helpers
 from flask import request
-from flask_cors import CORS
-from NextcloudWrapper import NextcloudWrapper
+from flask import send_from_directory
+from flask.wrappers import Request
 from functools import wraps
 import authenticator
-import database
-import time
 import util
-import os
-import secrets
-import string
-from difflib import SequenceMatcher
+from web import *
+import json
+from database import Queries
+from flask_restx import fields, Resource, Api
+from flask_restx import reqparse
+import flask
 
-app = Flask(__name__)
-CORS(app, supports_credentials=True)
+api_bp = flask.Blueprint("api", __name__, url_prefix="/api/")
+api = Api(api_bp, doc='/docu/', base_url='/api')
+app.register_blueprint(api_bp)
 
-lecture_cache = None
-wr = NextcloudWrapper(os.environ.get("url"),
-                      os.environ.get("username"), os.environ.get("password"), os.environ.get("path"))
-link_cache = dict()
 token_manager = authenticator.TokenManager()
-database_manager = database.SQLiteWrapper()
-link_cache = database_manager.load_all_links()
+
+with app.app_context():
+    db = Queries.Queries(sql_database)
+
+taskScheduler = TaskScheduler.TaskScheduler()
+taskScheduler.add_Weekly_Task(db.create_Links)
+taskScheduler.start()
+
+
+def is_admin():
+    return int(request.cookies.get('memberID')) == 1 and token_manager.check_token(request.cookies.get('memberID'), request.cookies.get('token'))
 
 
 def authenticated(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        if not token_manager.check_token(request.cookies.get('token')):
+        if not token_manager.check_token(request.cookies.get('memberID'), request.cookies.get('token')):
             return util.build_response("Unauthorized", 403)
         return fn(*args, **kwargs)
     wrapper.__name__ = fn.__name__
     return wrapper
 
 
-@app.route('/refresh/cache', methods=["POST"])
-@authenticated
-def refresh_cache():
-    global lecture_cache
-    lecture_cache = wr.get_lectures(True)
-    wr.refresh_link_cache_async()
-    return util.build_response("OK")
+def admin(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if not is_admin():
+            return util.build_response("Unauthorized", 403)
+        return fn(*args, **kwargs)
+    wrapper.__name__ = fn.__name__
+    return wrapper
 
 
-@app.route('/lectures', methods=["GET"])
-@authenticated
-def get_lectures():
-    global lecture_cache
-    if lecture_cache:
-        return util.build_response(lecture_cache)
+def is_self_or_admin(request, member_id):
+    return str(member_id) == str(request.cookies.get('memberID')) or str(request.cookies.get('memberID')) == "1"
+
+
+@api.route('/login/check')
+class login_Check(Resource):
+    @authenticated
+    def get(self):
+        """
+        Check if your login token is valid
+        """
+        return util.build_response("OK")
+
+
+@api.route('/login/admin/check')
+class login_Check_Admin(Resource):
+    @admin
+    def get(self):
+        """
+        Check if your token is a valid admin token
+        """
+        return util.build_response("OK")
+
+
+model = api.model('Login', {
+    'name': fields.String(description='Name of the user that wants to log in', required=True),
+    'password': fields.String(description='Password of the user that wants to log in', required=True)
+})
+
+
+@api.route('/login')
+class login(Resource):
+    @api.doc(body=model)
+    def post(self):
+        """
+        Get the memberID and token for using the api
+
+        The <b>memberID</b> and <b>token</b> have to be send with every request as cookies
+        """
+        post_data = request.json
+        name = post_data["name"]
+        password = post_data["password"]
+        member_id = db.checkPassword(name, password)
+
+        if member_id is not None:
+            util.log("Login", "User logged in")
+            token = token_manager.create_token(member_id)
+            return util.build_response("Login successfull", cookieToken=token, cookieMemberID=member_id)
+        return util.build_response("Unauthorized", code=403)
+
+
+@api.route('/cookies')
+class cookie(Resource):
+    def get(self):
+        """
+        Get the memberID and token for using the api
+        """
+
+        return util.build_response({"memberID": request.cookies.get('memberID'), "token": request.cookies.get('token')})
+
+
+@api.route('/logout')
+class logout(Resource):
+    @authenticated
+    def post(self):
+        """
+        Invalidates the current token
+        """
+        token_manager.delete_token(request.cookies.get('token'))
+        util.log("Logout", f"MemberID: {request.cookies.get('memberID')}")
+        return util.build_response("OK")
+
+
+@api.route('/lectures')
+class lectures(Resource):
+    @authenticated
+    def get(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.get_lectures())
+
+
+@api.route('/alias')
+class alias(Resource):
+    @admin
+    def put(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.add_alias(request.json["lectureID"], request.json["name"]))
+
+    @admin
+    def delete(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.remove_alias(request.json["id"]))
+
+
+@api.route('/person')
+class person(Resource):
+    @admin
+    def put(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.add_person(request.json["lectureID"], request.json["name"]))
+
+    @admin
+    def delete(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.remove_person(request.json["id"]))
+
+
+@api.route('/checkout')
+class checkout(Resource):
+    @authenticated
+    def put(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.create_share(request.json))
+
+
+@api.route('/share/<string:share>')
+class share(Resource):
+    @authenticated
+    def get(self, share):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.get_share(share))
+
+
+if __name__ == "__main__":
+    if util.logging_enabled:
+        app.run("0.0.0.0", threaded=True)
     else:
-        lecture_cache = wr.get_lectures()
-        return util.build_response(lecture_cache)
-
-
-@app.route('/links', methods=["GET"])
-def get_links():
-    print(request.args["code"])
-    return util.build_response(link_cache[request.args["code"]])
-
-
-@app.route('/search/<string:search>', methods=["GET"])
-def get_links_search(search):
-    global lecture_cache
-    if not lecture_cache:
-        lecture_cache = wr.get_lectures()
-
-    lecture_with_ratio = []
-    for lecture in lecture_cache:
-        name = lecture['name']
-        id = lecture['id']
-        folder = lecture['folder']
-        lecture_with_ratio.append(
-            {'name': name, 'folder': folder, 'id': id, 'matching': SequenceMatcher(None, name, search).ratio()})
-
-    lecture_with_ratio.sort(key=lambda x: x['matching'])
-    lecture_with_ratio.reverse()
-
-    to_output = lecture_with_ratio[0]
-
-    links = list()
-
-    link = wr.link_from_server(to_output["folder"])
-    print("Link generated:", link)
-    links.append([to_output["name"], link])
-
-    secret = ""
-    for i in range(12):
-        secret += string.ascii_letters[secrets.randbelow(52)]
-    link_cache[secret] = links
-    database_manager.store_links(secret, links, True)
-
-    return util.build_response({"url": "https://info.pv.fius.de/"+secret, "secret": secret, "name": to_output["name"]})
-
-
-@app.route('/create/token', methods=["POST"])
-def createToken():
-    post_data = request.json
-    if post_data["password"] == authenticator.password:
-        new_token = token_manager.create_token()
-        return util.build_response("OK", 200, cookie=["token", new_token])
-    else:
-        return util.build_response("Unauthorized", 403)
-
-
-@app.route('/logout', methods=["POST"])
-@authenticated
-def logout():
-    token_manager.delete_token(request.cookies.get('token'))
-    return util.build_response("OK")
-
-
-@app.route('/authenticated', methods=["GET"])
-@authenticated
-def is_authenticated():
-    return util.build_response("OK")
-
-
-@app.route('/cache/state', methods=["GET"])
-@authenticated
-def cache_state():
-    return util.build_response({"isRefreshing": wr.is_refreshing, "progress": int(wr.refreshing_progress*100)})
-
-
-@app.route('/create/qr', methods=["POST"])
-@authenticated
-def createQr():
-    global lecture_cache
-    print(request.json)
-    if lecture_cache is None:
-        lecture_cache = wr.get_lectures()
-    links = list()
-    for id in request.json:
-        link = wr.link_from_server(lecture_cache[id]["folder"])
-        print("Link generated:", link)
-        links.append([lecture_cache[id]["name"], link])
-    secret = ""
-    for i in range(12):
-        secret += string.ascii_letters[secrets.randbelow(52)]
-    link_cache[secret] = links
-    database_manager.store_links(secret, links, True)
-    return util.build_response({"url": "https://info.pv.fius.de/"+secret, "secret": secret})
-
-
-app.run("0.0.0.0")
+        from waitress import serve
+        serve(app, host="0.0.0.0", port=5000, threads=4)
