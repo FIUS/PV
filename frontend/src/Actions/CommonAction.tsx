@@ -32,6 +32,9 @@ export const addToCart = (id: number) => {
 }
 
 export const setLectures = (lectures: Array<Lecture>) => {
+    lectures.forEach(element => {
+        element.name = element.name.replaceAll("_", " ")
+    });
     return {
         type: "SET_LECTURES",
         payload: lectures

@@ -109,10 +109,9 @@ const Checkout = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-
                                     {common.share.links.map((link) => (
                                         <TableRow key={link.link}>
-                                            <TableCell component="th" scope="row">{link.name}</TableCell>
+                                            <TableCell component="th" scope="row">{link.name.replaceAll("_"," ")}</TableCell>
                                             <TableCell>
                                                 <Link href={link.link}>
                                                     {link.link}
@@ -120,7 +119,6 @@ const Checkout = () => {
                                             </TableCell>
                                         </TableRow>
                                     ))}
-
                                 </TableBody>
                             </Table>
                         </TableContainer>
