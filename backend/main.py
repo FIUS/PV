@@ -184,7 +184,6 @@ class checkout(Resource):
 
 @api.route('/share/<string:share>')
 class share(Resource):
-    @authenticated
     def get(self, share):
         """
         Invalidates the current token
