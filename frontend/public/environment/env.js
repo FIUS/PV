@@ -1,4 +1,4 @@
-const drinklistName = "Drinklist-DEV";
+const appname = "PV-DEV";
 
 window.globalTS = {
     "DOMAIN": "http://127.0.0.1:5000/api/",
@@ -8,9 +8,9 @@ window.globalTS = {
     "ABOUT_LINK": "",
     "PRIVACY_LINK": "",
     "ADDITIONAL_INFORMATION": "",
-    "WELCOME_TEXT_0": "Willkommen zur Drinklist",
-    "WELCOME_TEXT_0_ADMIN": drinklistName + " Admin-Interface",
+    "WELCOME_TEXT_0": "Willkommen zum PV",
+    "WELCOME_TEXT_0_ADMIN": appname + " Admin-Interface",
     "WELCOME_TEXT_1": "Bitte logge dich ein!",
-    "HOME_BUTTON": drinklistName,
+    "HOME_BUTTON": appname,
     "TRANSACTION_LIMIT": 1000
 };

@@ -1,5 +1,42 @@
 import { AlertColor } from "@mui/material"
 import { ERROR_MESSAGE } from "../Components/Common/Internationalization/i18n"
+import { Lecture, Share } from "../types/ResponseTypes"
+
+
+export const clearCart = () => {
+    return {
+        type: "CLEAR_CART",
+        payload: null
+    }
+}
+
+export const addShare = (share: Share) => {
+    return {
+        type: "ADD_SHARE",
+        payload: share
+    }
+}
+
+export const removeFromCart = (id: number) => {
+    return {
+        type: "REMOVE_FROM_CART",
+        payload: id
+    }
+}
+
+export const addToCart = (id: number) => {
+    return {
+        type: "ADD_TO_CART",
+        payload: id
+    }
+}
+
+export const setLectures = (lectures: Array<Lecture>) => {
+    return {
+        type: "SET_LECTURES",
+        payload: lectures
+    }
+}
 
 export const setLoginState = (isLoggedIn: boolean) => {
     return {

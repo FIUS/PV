@@ -1,38 +1,26 @@
 export type Member = {
     id: number,
-    name: string,
-    balance: number,
-    hidden: boolean,
-    alias: string
+    name: string
 }
 
-export type Drink = {
+export type Lecture = {
     id: number,
     name: string,
-    stock: number,
-    price: number,
-    category: string
+    folder: string,
+    link: string,
+    validUntil: string,
+    aliases: Array<IDName>
+    persons: Array<IDName>
 }
 
-export type Transaction = {
+export type IDName = {
     id: number,
-    description: string,
-    memberID: number,
-    memberName?: string,
-    amount: number,
-    date: string,
-    revertable: boolean
+    name: string
 }
 
-export type Checkout = {
-    id: number,
-    date: string,
-    currentCash: number,
-    transactions?: Array<Transaction>
-}
-
-export type Message = {
-    text: string,
-    memberNameFrom: string,
-    emoji: string
+export type Share = {
+    secret: "",
+    links: Array<{
+        name: string, link: string
+    }>
 }

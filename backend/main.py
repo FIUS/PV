@@ -127,6 +127,70 @@ class logout(Resource):
         return util.build_response("OK")
 
 
+@api.route('/lectures')
+class lectures(Resource):
+    @authenticated
+    def get(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.get_lectures())
+
+
+@api.route('/alias')
+class alias(Resource):
+    @admin
+    def put(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.add_alias(request.json["lectureID"], request.json["name"]))
+
+    @admin
+    def delete(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.remove_alias(request.json["id"]))
+
+
+@api.route('/person')
+class person(Resource):
+    @admin
+    def put(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.add_person(request.json["lectureID"], request.json["name"]))
+
+    @admin
+    def delete(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.remove_person(request.json["id"]))
+
+
+@api.route('/checkout')
+class checkout(Resource):
+    @authenticated
+    def put(self):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.create_share(request.json))
+
+
+@api.route('/share/<string:share>')
+class share(Resource):
+    @authenticated
+    def get(self, share):
+        """
+        Invalidates the current token
+        """
+        return util.build_response(db.get_share(share))
+
+
 if __name__ == "__main__":
     if util.logging_enabled:
         app.run("0.0.0.0", threaded=True)

@@ -12,6 +12,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import Routing from './Components/Routing/Routing';
 import LoginChecker from './Components/Common/LoginChecker/LoginChecker';
 import Toast from './Components/Common/Toast/Toast';
+import TopBar from './Components/Common/TopBar/TopBar';
 
 declare global {
   interface Window {
@@ -52,7 +53,7 @@ function App() {
               <Toast />
 
               <Box sx={{ display: 'flex' }}>
-
+                <TopBar />
                 <Box component="main" sx={{ flexGrow: 1, p: 3, padding: 0 }}>
                   <Toolbar />
                   <Routing />

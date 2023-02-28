@@ -10,9 +10,6 @@ domain = os.environ.get("DOMAIN") if os.environ.get(
 logging_enabled = os.environ.get(
     "DEBUG") == "true" if os.environ.get("DEBUG") else False
 
-token = os.environ.get("X_AUTH_TOKEN")
-old_domain = os.environ.get("OLD_DOMAIN")
-
 admin_username = os.environ.get("ADMIN_USERNAME") if os.environ.get(
     "ADMIN_USERNAME") else "admin"
 admin_password = os.environ.get("ADMIN_PASSWORD") if os.environ.get(
@@ -22,14 +19,15 @@ moderator_username = os.environ.get(
     "MOD_USERNAME") if os.environ.get("MOD_USERNAME") else "moderator"
 moderator_password = os.environ.get(
     "MOD_PASSWORD") if os.environ.get("MOD_PASSWORD") else "unsafe"
-standard_user_password = os.environ.get(
-    "USER_PASSWORD") if os.environ.get("USER_PASSWORD") else "unsafe"
-undo_timelimit = int(os.environ.get(
-    "UNDO_TIMELIMIT")) if os.environ.get("UNDO_TIMELIMIT") else 1
-default_drink_category = int(os.environ.get(
-    "DEFAULT_DRINK_CATEGORY")) if os.environ.get("DEFAULT_DRINK_CATEGORY") else "Getränk"
-use_alias = os.environ.get(
-    "USE_ALIAS") == "true" if os.environ.get("USE_ALIAS") else True
+
+nextcloud_username = os.environ.get(
+    "NEXTCLOUD_USERNAME") if os.environ.get("NEXTCLOUD_USERNAME") else None
+nextcloud_password = os.environ.get(
+    "NEXTCLOUD_PASSWORD") if os.environ.get("NEXTCLOUD_PASSWORD") else None
+nextcloud_domain = os.environ.get(
+    "NEXTCLOUD_DOMAIN") if os.environ.get("NEXTCLOUD_DOMAIN") else None
+nextcloud_path = os.environ.get(
+    "NEXTCLOUD_PATH") if os.environ.get("NEXTCLOUD_PATH") else None
 
 tempfile_path = "tempfiles"
 backup_file_name = "backup.json"

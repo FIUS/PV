@@ -1,15 +1,13 @@
 import { AlertColor } from "@mui/material"
-import { Drink, Member, Transaction } from "../types/ResponseTypes"
+import { Lecture, Share } from "../types/ResponseTypes"
 
 const defaultAlertType: AlertColor = "success"
 
 const initialState: CommonReducerType = {
-    drinks: null,
-    drinkCategories: null,
-    members: null,
-    favorites: null,
-    history: null,
+    lectures: [],
     isLoggedIn: false,
+    cart: [],
+    share: null,
     toast: {
         open: false,
         duration: 4000,
@@ -21,12 +19,10 @@ const initialState: CommonReducerType = {
 }
 
 export type CommonReducerType = {
-    drinks: Array<Drink> | null,
-    drinkCategories: Array<string> | null,
-    members: Array<Member> | null,
-    favorites: Array<number> | null,
-    history: Array<Transaction> | null,
+    lectures: Array<Lecture>,
     isLoggedIn: boolean,
+    cart: Array<number>,
+    share: Share | null,
     toast: {
         open: boolean,
         duration: number,
@@ -40,24 +36,21 @@ const reducer = (state = initialState, { type, payload }: any) => {
 
     var newState = { ...state }
     switch (type) {
-        case "SET_DRINKS":
-            newState.drinks = payload
+        case "CLEAR_CART":
+            newState.cart = []
+            newState.share = null
             return newState
-
-        case "SET_MEMBERS":
-            newState.members = payload
+        case "ADD_SHARE":
+            newState.share = payload
             return newState
-
-        case "SET_DRINK_CATEGORIES":
-            newState.drinkCategories = payload
+        case "REMOVE_FROM_CART":
+            newState.cart = newState.cart.filter(f => f !== payload)
             return newState
-
-        case "SET_FAVORITES":
-            newState.favorites = payload
+        case "ADD_TO_CART":
+            newState.cart = newState.cart.filter(f => f !== payload).concat([payload])
             return newState
-
-        case "SET_HISTORY":
-            newState.history = payload
+        case "SET_LECTURES":
+            newState.lectures = payload
             return newState
 
         case "SET_LOGIN":
