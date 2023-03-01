@@ -11,7 +11,7 @@ class Share(db.Model):
     creation_time = sql.Column(
         sql.DateTime, default=datetime.datetime.now, nullable=True)
     secret = sql.Column(sql.String(
-        16), default=secrets.token_urlsafe(16), nullable=False)
+        16), nullable=False)
     links = relationship(Link, lazy="joined")
 
     def to_dict(self):

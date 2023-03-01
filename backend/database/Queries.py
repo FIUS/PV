@@ -17,6 +17,7 @@ import os
 from Nextcloud import Nextcloud
 from database.Link import Link
 from database.Share import Share
+import secrets
 
 
 class Queries:
@@ -71,7 +72,7 @@ class Queries:
                 lecture.valid_until = None
 
     def create_share(self, lecture_ids):
-        share: Share = Share()
+        share: Share = Share(secret=secrets.token_urlsafe(16))
         self.session.add(share)
         self.session.commit()
 

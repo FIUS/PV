@@ -111,7 +111,9 @@ const Checkout = () => {
                                 <TableBody>
                                     {common.share.links.map((link) => (
                                         <TableRow key={link.link}>
-                                            <TableCell component="th" scope="row">{link.name.replaceAll("_"," ")}</TableCell>
+                                            <TableCell component="th" scope="row">
+                                                {link.name.replaceAll("_", " ")}
+                                            </TableCell>
                                             <TableCell>
                                                 <Link href={link.link}>
                                                     {link.link}
