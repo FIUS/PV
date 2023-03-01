@@ -35,7 +35,7 @@ const Overview = (props: Props) => {
     const cart = () => {
         if (common.cart.length > 0) {
             return <div className={style.cart}>
-                <Typography variant='h5'>Einkaufwagen</Typography>
+                <Typography variant='h5'>Einkaufswagen</Typography>
                 <TableContainer component={Paper}>
                     <Table size='small'>
                         <TableHead>
