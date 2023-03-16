@@ -23,6 +23,6 @@ class TaskScheduler:
 
     def add_Weekly_Task(self, task, *args) -> None:
         if len(args) > 0:
-            schedule.every(7).days.at("00:01").do(task, args)
+            schedule.every().sunday.at("00:01").do(task, args)
         else:
-            schedule.every(7).days.at("00:01").do(task)
+            schedule.every().sunday.at("00:01").do(task)
