@@ -57,16 +57,20 @@ class Queries:
                 for folder in folders:
                     db_result: Lecture = self.session.query(
                         Lecture).filter_by(name=folder).first()
-                    folder_path = f"{self.base_folder}/{folder}"
-                    link = self.nc.create_link(folder_path)
-                    if db_result is None:
+                    
+                    # Check if the link is valid for less than 12 days
+                    if db_result.valid_until - datetime.now() < timedelta(days=12):
 
-                        new_Lecture = Lecture(name=folder, folder=folder_path,
-                                              link=link["link"], valid_until=link["valid_until"])
-                        self.session.add(new_Lecture)
-                    else:
-                        db_result.link = link["link"]
-                        db_result.valid_until = link["valid_until"]
+                        folder_path = f"{self.base_folder}/{folder}"
+                        link = self.nc.create_link(folder_path)
+                        if db_result is None:
+
+                            new_Lecture = Lecture(name=folder, folder=folder_path,
+                                                link=link["link"], valid_until=link["valid_until"])
+                            self.session.add(new_Lecture)
+                        else:
+                            db_result.link = link["link"]
+                            db_result.valid_until = link["valid_until"]
 
                     self.session.commit()
                 all_Lectures: List[Lecture] = self.session.query(Lecture).all()
