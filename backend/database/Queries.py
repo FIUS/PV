@@ -18,6 +18,7 @@ from Nextcloud import Nextcloud
 from database.Link import Link
 from database.Share import Share
 import secrets
+import time
 
 
 class Queries:
@@ -47,29 +48,37 @@ class Queries:
         self.create_Links()
 
     def create_Links(self) -> None:
-        folders = self.nc.list_subfolders(self.base_folder)
+        error_occured = True
+        while error_occured:
+            error_occured = False
+            try:
+                folders = self.nc.list_subfolders(self.base_folder)
 
-        for folder in folders:
-            db_result: Lecture = self.session.query(
-                Lecture).filter_by(name=folder).first()
-            folder_path = f"{self.base_folder}/{folder}"
-            link = self.nc.create_link(folder_path)
-            if db_result is None:
+                for folder in folders:
+                    db_result: Lecture = self.session.query(
+                        Lecture).filter_by(name=folder).first()
+                    folder_path = f"{self.base_folder}/{folder}"
+                    link = self.nc.create_link(folder_path)
+                    if db_result is None:
 
-                new_Lecture = Lecture(name=folder, folder=folder_path,
-                                      link=link["link"], valid_until=link["valid_until"])
-                self.session.add(new_Lecture)
-            else:
-                db_result.link = link["link"]
-                db_result.valid_until = link["valid_until"]
+                        new_Lecture = Lecture(name=folder, folder=folder_path,
+                                              link=link["link"], valid_until=link["valid_until"])
+                        self.session.add(new_Lecture)
+                    else:
+                        db_result.link = link["link"]
+                        db_result.valid_until = link["valid_until"]
 
-            self.session.commit()
-        all_Lectures: List[Lecture] = self.session.query(Lecture).all()
+                    self.session.commit()
+                all_Lectures: List[Lecture] = self.session.query(Lecture).all()
 
-        for lecture in all_Lectures:
-            if lecture.name not in folders:
-                lecture.link = None
-                lecture.valid_until = None
+                for lecture in all_Lectures:
+                    if lecture.name not in folders:
+                        lecture.link = None
+                        lecture.valid_until = None
+            except:
+                error_occured = True
+                print("Error while creating links")
+                time.sleep(60*10)
 
     def create_share(self, lecture_ids):
         share: Share = Share(secret=secrets.token_urlsafe(16))
