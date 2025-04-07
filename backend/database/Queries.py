@@ -59,7 +59,7 @@ class Queries:
                         Lecture).filter_by(name=folder).first()
 
                     # Check if the link is valid for less than 12 days
-                    if db_result is None or db_result.valid_until - datetime.now() < timedelta(days=12):
+                    if db_result is None or db_result.valid_until is None or db_result.valid_until - datetime.now() < timedelta(days=12):
 
                         folder_path = f"{self.base_folder}/{folder}"
                         link = self.nc.create_link(folder_path)
@@ -79,9 +79,9 @@ class Queries:
                     if lecture.name not in folders:
                         lecture.link = None
                         lecture.valid_until = None
-            except:
+            except Exception as e:
                 error_occured = True
-                print("Error while creating links")
+                print("Error while creating links:", e)
                 time.sleep(60*10)
 
     def create_share(self, lecture_ids):
