@@ -16,6 +16,10 @@ USER node
 
 # set working directory
 WORKDIR /app
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH=/app/node_modules/.bin:$PATH
+
+
 RUN npm install
 
 # add app
@@ -23,7 +27,5 @@ COPY . ./
 
 RUN npm run build 
 
-# add `/app/node_modules/.bin` to $PATH
-ENV PATH=/app/node_modules/.bin:$PATH
 # start app
 #CMD ["serve", "-s", "build", "-l", "8080"]
