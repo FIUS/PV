@@ -63,6 +63,10 @@ class Queries:
 
                         folder_path = f"{self.base_folder}/{folder}"
                         link = self.nc.create_link(folder_path)
+                        while link is None or link["link"] is None:
+                            print("WARNING: could not create link for " + folder_path + " retrying in 5m")
+                            time.sleep(5*60)
+                            link = self.nc.create_link(folder_path)
                         if db_result is None:
 
                             new_Lecture = Lecture(name=folder, folder=folder_path,
@@ -81,7 +85,7 @@ class Queries:
                         lecture.valid_until = None
             except Exception as e:
                 error_occured = True
-                print("Error while creating links:", e)
+                print("Error while creating links (waiting 10m before retrying all):", e)
                 time.sleep(60*10)
 
     def create_share(self, lecture_ids):

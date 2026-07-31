@@ -1,7 +1,7 @@
 import requests
 import datetime
 import urllib.parse
-
+import time
 
 class Nextcloud:
     def __init__(self, domain, username, password):
@@ -16,40 +16,47 @@ class Nextcloud:
 
     def create_link(self, folder_name, valid_for=14):
 
-        today = datetime.date.today()
-        future_date = today + datetime.timedelta(days=valid_for)
+        for i in range(3):
+            today = datetime.date.today()
+            future_date = today + datetime.timedelta(days=valid_for)
 
-        # Create a session object to store authentication credentials
+            # Create a session object to store authentication credentials
 
-        # Construct the URL for sharing the folder
-        share_url = self.domain + "/ocs/v2.php/apps/files_sharing/api/v1/shares?format=json"
+            # Construct the URL for sharing the folder
+            share_url = self.domain + "/ocs/v2.php/apps/files_sharing/api/v1/shares?format=json"
 
-        # Create a payload with the parameters for sharing
-        payload = {
-            "path": folder_name,
-            "shareType": 3,  # 3 means public link share
-            "expireDate": datetime.datetime.strftime(future_date, "%Y-%m-%d")
-        }
-
-        # Send a POST request to create the share
-        response = self.session.post(share_url, data=payload, headers={
-            "OCS-APIRequest": "true"}, timeout=10)
-
-        # Check if the request was successful
-        if response.status_code == 200:
-            # Parse the JSON response
-            data = response.json()
-            # Get the share link from the response
-            link = data["ocs"]["data"]["url"]
-            # Print the share link
-            print(f"The share link for {folder_name} is: {link}")
-            return {
-                "valid_until": future_date,
-                "link": link
+            # Create a payload with the parameters for sharing
+            payload = {
+                "path": folder_name,
+                "shareType": 3,  # 3 means public link share
+                "expireDate": datetime.datetime.strftime(future_date, "%Y-%m-%d")
             }
-        else:
-            # Print an error message
-            print(f"Something went wrong: {response.text}")
+
+            # Send a POST request to create the share
+            response = self.session.post(share_url, data=payload, headers={
+                "OCS-APIRequest": "true"}, timeout=10)
+
+            # Check if the request was successful
+            if response.status_code == 200:
+                # Parse the JSON response
+                data = response.json()
+                # Get the share link from the response
+                link = data["ocs"]["data"]["url"]
+                # Print the share link
+                print(f"The share link for {folder_name} is: {link}")
+                return {
+                    "valid_until": future_date,
+                    "link": link
+                }
+            else:
+                # Print an error message
+                if response.status_code == 429:
+                    print("Received '429 Too many requests. Retrying in 2m")
+                    time.sleep(2*60)
+                    continue
+                else
+                    print(f"Something went wrong: {response.status_code} {response.text}")
+
 
     def list_subfolders(self, folder_name):
         # Construct the URL for getting the list of subfolders
