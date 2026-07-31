@@ -1,7 +1,7 @@
 FROM node:lts-alpine
 
 RUN mkdir -p /app && \
-    chown node:node /app && \
+    chown -R node:node /app && \
     npm install -g serve
 
 USER node
