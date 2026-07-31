@@ -20,9 +20,6 @@ RUN npm install
 
 # add app
 COPY . ./
-USER root
-RUN chown -R node:node /app
-USER node
 
 RUN npm run build 
 
