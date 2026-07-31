@@ -19,6 +19,7 @@ from database.Link import Link
 from database.Share import Share
 import secrets
 import time
+import traceback
 
 
 class Queries:
@@ -86,6 +87,7 @@ class Queries:
             except Exception as e:
                 error_occured = True
                 print("Error while creating links (waiting 10m before retrying all):", e)
+                print(traceback.format_exc())
                 time.sleep(60*10)
 
     def create_share(self, lecture_ids):

@@ -54,7 +54,7 @@ class Nextcloud:
                     print("Received '429 Too many requests. Retrying in 2m")
                     time.sleep(2*60)
                     continue
-                else
+                else:
                     print(f"Something went wrong: {response.status_code} {response.text}")
 
 
