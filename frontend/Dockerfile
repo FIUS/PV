@@ -28,4 +28,4 @@ COPY . ./
 RUN npm run build 
 
 # start app
-#CMD ["serve", "-s", "build", "-l", "8080"]
+CMD ["serve", "-s", "build", "-l", "8080"]
