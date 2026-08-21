@@ -72,17 +72,17 @@ class Queries:
                             time.sleep(10*60)
                             link = self.nc.create_link(folder_path, valid_for)
                         if db_result is None:
-                            print("Lecture " + folder + " doesn't exist in database yet, creating. Valid until " + link["valid_until"].isoformat() + " (" + valid_for + " days)")
+                            print("Lecture " + folder + " doesn't exist in database yet, creating. Valid until " + link["valid_until"].isoformat() + " (" + str(valid_for) + " days)")
                             new_Lecture = Lecture(name=folder, folder=folder_path,
                                                   link=link["link"], valid_until=link["valid_until"])
                             self.session.add(new_Lecture)
                         else:
-                            print("Lecture " + folder + " exists, updating link. Valid until " + link["valid_until"].isoformat() + " (" + valid_for + " days)")
+                            print("Lecture " + folder + " exists, updating link. Valid until " + link["valid_until"].isoformat() + " (" + str(valid_for) + " days)")
                             db_result.link = link["link"]
                             db_result.valid_until = link["valid_until"]
 
                     else:
-                        print("Lecture " + folder + ": Link valid until " + db_result.valid_until.isoformat() + " (" + (db_result.valid_until - datetime.now()).days + " days)")
+                        print("Lecture " + folder + ": Link valid until " + db_result.valid_until.isoformat() + " (" + str((db_result.valid_until - datetime.now()).days) + " days)")
 
                     self.session.commit()
                 all_Lectures: List[Lecture] = self.session.query(Lecture).all()
