@@ -42,4 +42,4 @@ jobs:
           tags: fius/pv-frontend:latest
           file: frontend/Dockerfile
           context: ./frontend
-          platforms: linux/amd64,linux/arm/v7
+          platforms: linux/amd64
