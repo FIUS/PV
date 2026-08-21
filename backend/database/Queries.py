@@ -20,6 +20,7 @@ from database.Share import Share
 import secrets
 import time
 import traceback
+import random
 
 
 class Queries:
@@ -50,6 +51,7 @@ class Queries:
 
     def create_Links(self) -> None:
         error_occured = True
+        print(datetime.now().isoformat() + ": Starting link update")
         while error_occured:
             error_occured = False
             try:
@@ -59,23 +61,28 @@ class Queries:
                     db_result: Lecture = self.session.query(
                         Lecture).filter_by(name=folder).first()
 
-                    # Check if the link is valid for less than 12 days
-                    if db_result is None or db_result.valid_until is None or db_result.valid_until - datetime.now() < timedelta(days=12):
+                    # Check if the link is valid for less than 7 days
+                    if db_result is None or db_result.valid_until is None or db_result.valid_until - datetime.now() < timedelta(days=7):
 
                         folder_path = f"{self.base_folder}/{folder}"
-                        link = self.nc.create_link(folder_path)
+                        valid_for = 16 + random.randint(-5,5)
+                        link = self.nc.create_link(folder_path, valid_for)
                         while link is None or link["link"] is None:
-                            print("WARNING: could not create link for " + folder_path + " retrying in 5m")
-                            time.sleep(5*60)
-                            link = self.nc.create_link(folder_path)
+                            print("WARNING: could not create link for " + folder + " retrying in 10m")
+                            time.sleep(10*60)
+                            link = self.nc.create_link(folder_path, valid_for)
                         if db_result is None:
-
+                            print("Lecture " + folder + " doesn't exist in database yet, creating. Valid until " + link["valid_until"].isoformat() + " (" + valid_for + " days)")
                             new_Lecture = Lecture(name=folder, folder=folder_path,
                                                   link=link["link"], valid_until=link["valid_until"])
                             self.session.add(new_Lecture)
                         else:
+                            print("Lecture " + folder + " exists, updating link. Valid until " + link["valid_until"].isoformat() + " (" + valid_for + " days)")
                             db_result.link = link["link"]
                             db_result.valid_until = link["valid_until"]
+
+                    else:
+                        print("Lecture " + folder + ": Link valid until " + db_result.valid_until.isoformat() + " (" + (db_result.valid_until - datetime.now()).days + " days)")
 
                     self.session.commit()
                 all_Lectures: List[Lecture] = self.session.query(Lecture).all()
@@ -89,6 +96,8 @@ class Queries:
                 print("Error while creating links (waiting 10m before retrying all):", e)
                 print(traceback.format_exc())
                 time.sleep(60*10)
+
+        print(datetime.now().isoformat() + ": All links updated")
 
     def create_share(self, lecture_ids):
         share: Share = Share(secret=secrets.token_urlsafe(16))

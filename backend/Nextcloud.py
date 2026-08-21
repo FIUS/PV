@@ -2,6 +2,7 @@ import requests
 import datetime
 import urllib.parse
 import time
+from collections import deque 
 
 class Nextcloud:
     def __init__(self, domain, username, password):
@@ -13,49 +14,59 @@ class Nextcloud:
 
         self.session = requests.Session()
         self.session.auth = (username, password)
+        self.last_creations = deque([])
 
     def create_link(self, folder_name, valid_for=14):
+        # Rate limit link creation to 15 links per 10 minute rolling interval
+        now = datetime.datetime.now()
+        while (now - self.last_creations[0]) > datetime.timedelta(minutes=10):
+            self.last_creations.popleft()
+        if len(self.last_creations) >= 15:
+            sleepUntil = self.last_creations[len(self.last_creations)-15] + datetime.timedelta(minutes=10)
+            print(now.isoformat() + ": Last 10 minute interval had " + str(len(self.last_creations)) + " link creations. Sleeping until " + sleepUntil.isoformat())
+            time.sleep(max((now - sleepUntil).total_seconds(), 0) + 17) # add 17s to sleep time as buffer
+            print("Continuing link creation")
+            self.last_creations.append(datetime.datetime.now())
+        else:
+            self.last_creations.append(now)
 
-        for i in range(3):
-            today = datetime.date.today()
-            future_date = today + datetime.timedelta(days=valid_for)
+        today = datetime.date.today()
+        future_date = today + datetime.timedelta(days=valid_for)
 
-            # Create a session object to store authentication credentials
+        # Create a session object to store authentication credentials
 
-            # Construct the URL for sharing the folder
-            share_url = self.domain + "/ocs/v2.php/apps/files_sharing/api/v1/shares?format=json"
+        # Construct the URL for sharing the folder
+        share_url = self.domain + "/ocs/v2.php/apps/files_sharing/api/v1/shares?format=json"
 
-            # Create a payload with the parameters for sharing
-            payload = {
-                "path": folder_name,
-                "shareType": 3,  # 3 means public link share
-                "expireDate": datetime.datetime.strftime(future_date, "%Y-%m-%d")
+        # Create a payload with the parameters for sharing
+        payload = {
+            "path": folder_name,
+            "shareType": 3,  # 3 means public link share
+            "expireDate": datetime.datetime.strftime(future_date, "%Y-%m-%d")
+        }
+
+        # Send a POST request to create the share
+        response = self.session.post(share_url, data=payload, headers={
+            "OCS-APIRequest": "true"}, timeout=10)
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            # Parse the JSON response
+            data = response.json()
+            # Get the share link from the response
+            link = data["ocs"]["data"]["url"]
+            # Print the share link
+            print(f"The share link for {folder_name} is: {link}")
+            return {
+                "valid_until": future_date,
+                "link": link
             }
-
-            # Send a POST request to create the share
-            response = self.session.post(share_url, data=payload, headers={
-                "OCS-APIRequest": "true"}, timeout=10)
-
-            # Check if the request was successful
-            if response.status_code == 200:
-                # Parse the JSON response
-                data = response.json()
-                # Get the share link from the response
-                link = data["ocs"]["data"]["url"]
-                # Print the share link
-                print(f"The share link for {folder_name} is: {link}")
-                return {
-                    "valid_until": future_date,
-                    "link": link
-                }
+        else:
+            # Print an error message
+            if response.status_code == 429:
+                print("Received '429 Too many requests. Rate limiting failed")
             else:
-                # Print an error message
-                if response.status_code == 429:
-                    print("Received '429 Too many requests. Retrying in 2m")
-                    time.sleep(2*60)
-                    continue
-                else:
-                    print(f"Something went wrong: {response.status_code} {response.text}")
+                print(f"Something went wrong: {response.status_code} {response.text}")
 
 
     def list_subfolders(self, folder_name):
