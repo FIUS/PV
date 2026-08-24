@@ -5,7 +5,7 @@
   "dependencies": {
     "@emotion/styled": "^11.10.0",
     "@mui/icons-material": "^9.3.1",
-    "@mui/lab": "^5.0.0-alpha.98",
+    "@mui/lab": "^6.0.0-dev.20240529-082515-213b5e33ab",
     "@mui/material": "^9.3.1",
     "js-cookie": "^3.0.1",
     "react": "^19.2.8",
