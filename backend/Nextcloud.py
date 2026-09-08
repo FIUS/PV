@@ -19,8 +19,11 @@ class Nextcloud:
     def create_link(self, folder_name, valid_for=14):
         # Rate limit link creation to 15 links per 10 minute rolling interval
         now = datetime.datetime.now()
-        while (now - self.last_creations[0]) > datetime.timedelta(minutes=10):
-            self.last_creations.popleft()
+        try:
+            while (now - self.last_creations[0]) > datetime.timedelta(minutes=10):
+                self.last_creations.popleft()
+        except IndexError:
+            pass
         if len(self.last_creations) >= 15:
             sleepUntil = self.last_creations[len(self.last_creations)-15] + datetime.timedelta(minutes=10)
             print(now.isoformat() + ": Last 10 minute interval had " + str(len(self.last_creations)) + " link creations. Sleeping until " + sleepUntil.isoformat())
