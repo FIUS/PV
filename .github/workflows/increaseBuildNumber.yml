@@ -14,9 +14,7 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GHUB_TOKEN }}
+      - uses: actions/checkout@v4
       - name: Increase build number
         run: awk '$0++' frontend/src/BuildNumber.json > newfile && mv newfile frontend/src/BuildNumber.json
       - name: Commit report
