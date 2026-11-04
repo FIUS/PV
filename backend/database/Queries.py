@@ -49,55 +49,109 @@ class Queries:
 
         self.create_Links()
 
-    def create_Links(self) -> None:
-        error_occured = True
+    def create_Links(self) -> dict:
+        """
+        Scheduled Sync: retries every 10 minutes until it succeeds.
+        """
         print(datetime.now().isoformat() + ": Starting link update")
-        while error_occured:
-            error_occured = False
+        while True:
             try:
-                folders = self.nc.list_subfolders(self.base_folder)
-
-                for folder in folders:
-                    db_result: Lecture = self.session.query(
-                        Lecture).filter_by(name=folder).first()
-
-                    # Check if the link is valid for less than 7 days
-                    if db_result is None or db_result.valid_until is None or db_result.valid_until - datetime.now() < timedelta(days=7):
-
-                        folder_path = f"{self.base_folder}/{folder}"
-                        valid_for = 16 + random.randint(-5,5)
-                        link = self.nc.create_link(folder_path, valid_for)
-                        while link is None or link["link"] is None:
-                            print("WARNING: could not create link for " + folder + " retrying in 10m")
-                            time.sleep(10*60)
-                            link = self.nc.create_link(folder_path, valid_for)
-                        if db_result is None:
-                            print("Lecture " + folder + " doesn't exist in database yet, creating. Valid until " + link["valid_until"].isoformat() + " (" + str(valid_for) + " days)")
-                            new_Lecture = Lecture(name=folder, folder=folder_path,
-                                                  link=link["link"], valid_until=link["valid_until"])
-                            self.session.add(new_Lecture)
-                        else:
-                            print("Lecture " + folder + " exists, updating link. Valid until " + link["valid_until"].isoformat() + " (" + str(valid_for) + " days)")
-                            db_result.link = link["link"]
-                            db_result.valid_until = link["valid_until"]
-
-                    else:
-                        print("Lecture " + folder + ": Link valid until " + db_result.valid_until.isoformat() + " (" + str((db_result.valid_until - datetime.now()).days) + " days)")
-
-                    self.session.commit()
-                all_Lectures: List[Lecture] = self.session.query(Lecture).all()
-
-                for lecture in all_Lectures:
-                    if lecture.name not in folders:
-                        lecture.link = None
-                        lecture.valid_until = None
+                summary = self.sync_once(fail_fast=False)
+                break
             except Exception as e:
-                error_occured = True
                 print("Error while creating links (waiting 10m before retrying all):", e)
                 print(traceback.format_exc())
                 time.sleep(60*10)
 
         print(datetime.now().isoformat() + ": All links updated")
+        return summary
+
+    def sync_once(self, fail_fast: bool = True) -> dict:
+        """
+        One Sync attempt. Raises on error.
+
+        With fail_fast, a link that cannot be created raises instead of
+        waiting and retrying every 10 minutes.
+
+        Returns counts of created Lectures, renewed links and Lectures
+        whose Nextcloud Folder no longer exists.
+        """
+        summary = {"created": 0, "renewed": 0, "withoutFolder": 0}
+        try:
+            folders = self.nc.list_subfolders(self.base_folder)
+            if folders is None:
+                raise RuntimeError(
+                    "Nextcloud-Ordner konnten nicht gelesen werden")
+
+            for folder in folders:
+                db_result: Lecture = self.session.query(
+                    Lecture).filter_by(name=folder).first()
+
+                # Check if the link is valid for less than 7 days
+                if db_result is None or db_result.valid_until is None or db_result.valid_until - datetime.now() < timedelta(days=7):
+
+                    folder_path = f"{self.base_folder}/{folder}"
+                    valid_for = 16 + random.randint(-5, 5)
+                    link = self.nc.create_link(folder_path, valid_for)
+                    while link is None or link["link"] is None:
+                        if fail_fast:
+                            raise RuntimeError(
+                                f"Link für {folder} konnte nicht erstellt werden")
+                        print("WARNING: could not create link for " +
+                              folder + " retrying in 10m")
+                        time.sleep(10*60)
+                        link = self.nc.create_link(folder_path, valid_for)
+                    if db_result is None:
+                        print("Lecture " + folder + " doesn't exist in database yet, creating. Valid until " +
+                              link["valid_until"].isoformat() + " (" + str(valid_for) + " days)")
+                        new_Lecture = Lecture(name=folder, folder=folder_path,
+                                              link=link["link"], valid_until=link["valid_until"])
+                        self.session.add(new_Lecture)
+                        summary["created"] += 1
+                    else:
+                        print("Lecture " + folder + " exists, updating link. Valid until " +
+                              link["valid_until"].isoformat() + " (" + str(valid_for) + " days)")
+                        db_result.link = link["link"]
+                        db_result.valid_until = link["valid_until"]
+                        summary["renewed"] += 1
+
+                else:
+                    print("Lecture " + folder + ": Link valid until " + db_result.valid_until.isoformat() +
+                          " (" + str((db_result.valid_until - datetime.now()).days) + " days)")
+
+                self.session.commit()
+            all_Lectures: List[Lecture] = self.session.query(Lecture).all()
+
+            for lecture in all_Lectures:
+                if lecture.name not in folders:
+                    lecture.link = None
+                    lecture.valid_until = None
+                    summary["withoutFolder"] += 1
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise
+
+        return summary
+
+    def delete_lecture(self, lecture_id) -> bool:
+        """
+        Deletes a Lecture with its Aliases and Persons from the database.
+        The Nextcloud Folder is not touched.
+        Returns False if no Lecture with this id exists.
+        """
+        lecture: Lecture = self.session.query(
+            Lecture).filter_by(id=lecture_id).first()
+        if lecture is None:
+            return False
+
+        for alias in list(lecture.alias):
+            self.session.delete(alias)
+        for person in list(lecture.persons):
+            self.session.delete(person)
+        self.session.delete(lecture)
+        self.session.commit()
+        return True
 
     def create_share(self, lecture_ids):
         share: Share = Share(secret=secrets.token_urlsafe(16))

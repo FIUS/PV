@@ -1,5 +1,4 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -9,37 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { Typography } from '@mui/material';
 
-import './Common.css'
-
-const ConfirmDialog = ({ title, open, setOpen, onConfirm, buttonText, isPositive }) => {
-
-    const BootstrapDialogTitle = (props) => {
-        const { children, onClose, ...other } = props;
-
-        return (
-            <DialogTitle sx={{ m: 0, p: 2 }} {...other} >
-                {children}
-                {onClose ? (
-                    <IconButton
-                        aria-label="close"
-                        onClick={onClose}
-                        sx={{
-                            position: 'absolute',
-                            right: 8,
-                            top: 8,
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                ) : null}
-            </DialogTitle>
-        );
-    };
-
-    BootstrapDialogTitle.propTypes = {
-        children: PropTypes.node,
-        onClose: PropTypes.func.isRequired,
-    };
+const ConfirmDialog = ({ title, open, setOpen, onConfirm, buttonText, isPositive, message }) => {
 
     const handleClose = () => {
         setOpen(false);
@@ -48,30 +17,39 @@ const ConfirmDialog = ({ title, open, setOpen, onConfirm, buttonText, isPositive
         return ""
     }
     return (
-        <div>
-            <Dialog
-                onClose={handleClose}
-                aria-labelledby="customized-dialog-title"
-                open={open}
-            >
-                <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose} style={{ minWidth: '300px' }}>
-                    {title}
-                </BootstrapDialogTitle>
+        <Dialog
+            onClose={handleClose}
+            aria-labelledby="confirm-dialog-title"
+            open={open}
+        >
+            <DialogTitle id="confirm-dialog-title" sx={{ m: 0, p: 2, pr: 6, minWidth: '300px' }}>
+                {title}
+                <IconButton
+                    aria-label="close"
+                    onClick={handleClose}
+                    sx={{
+                        position: 'absolute',
+                        right: 8,
+                        top: 8,
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
+            </DialogTitle>
 
-                <DialogContent dividers className="flexContainerCenter">
-                    <Typography variant="subtitle1"><b>Bist du dir Sicher?</b></Typography>
-
-                </DialogContent>
-                <DialogActions style={{ display: "flex", justifyContent: "space-between" }}>
-                    <Button variant='outlined' onClick={() => handleClose()}>
-                        Abbrechen
-                    </Button>
-                    <Button className={!isPositive ? "errorButton" : "successButton"} onClick={onConfirm}>
-                        {buttonText === undefined ? "Ja" : buttonText}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </div>
+            <DialogContent dividers>
+                <Typography variant="subtitle1"><b>Bist du dir sicher?</b></Typography>
+                {message ? <Typography variant="body2">{message}</Typography> : <></>}
+            </DialogContent>
+            <DialogActions style={{ display: "flex", justifyContent: "space-between" }}>
+                <Button variant='outlined' onClick={() => handleClose()}>
+                    Abbrechen
+                </Button>
+                <Button variant='contained' color={isPositive ? "success" : "error"} onClick={onConfirm}>
+                    {buttonText === undefined ? "Ja" : buttonText}
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 };
 

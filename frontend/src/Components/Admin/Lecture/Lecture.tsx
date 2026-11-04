@@ -1,9 +1,10 @@
-import { Autocomplete, Button, Chip, Divider, IconButton, List, ListItem, Paper, TextField, Typography } from '@mui/material'
+import { Autocomplete, Button, Chip, Divider, IconButton, List, ListItem, Paper, TextField, Tooltip, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import style from './lecture.module.scss'
 import Spacer from '../../Common/Spacer';
+import ConfirmDialog from '../../Common/ConfirmDialog';
 import { AddCircle } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CommonReducerType } from '../../../Reducer/CommonReducer';
@@ -26,6 +27,7 @@ const Lecture = (props: Props) => {
 
     const [person, setperson] = useState("")
     const [alias, setalias] = useState("")
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
     const personOptions = common.lectures.map(lecture => lecture.persons).reduce((a, b) => a.concat(b), []).map(tuple => tuple.name);
     const aliasOptions = common.lectures.map(lecture => lecture.aliases).reduce((a, b) => a.concat(b), []).map(tuple => tuple.name);
@@ -65,11 +67,47 @@ const Lecture = (props: Props) => {
         })
     }
 
+    const deleteLecture = () => {
+        if (!lecture) {
+            return
+        }
+        doRequest("DELETE", "lecture/" + lecture.id).then(value => {
+            setDeleteDialogOpen(false)
+            if (value.code === 200) {
+                dispatch(openToast({ message: lecture.name + " gelöscht" }))
+                navigate("/admin")
+            } else {
+                dispatch(openErrorToast())
+            }
+        })
+    }
+
+    // A Lecture with a link still has its Nextcloud Folder (as of the last Sync)
+    const deleteWarning = lecture?.link
+        ? "Der Ordner existiert noch in Nextcloud. Beim nächsten Sync wird die Lecture neu angelegt, ohne Personen und Aliase."
+        : undefined
+
     return (
         <div className={style.container}>
+            <ConfirmDialog
+                title={'"' + (lecture?.name ?? "") + '" löschen'}
+                open={deleteDialogOpen}
+                setOpen={setDeleteDialogOpen}
+                onConfirm={deleteLecture}
+                buttonText="Löschen"
+                isPositive={false}
+                message={deleteWarning}
+            />
             <div className={style.headline}>
                 <Typography variant='h5'>{lecture?.name}</Typography>
                 <Chip icon={<CheckCircleIcon color="success" />} label="OK" variant="outlined" />
+                <Tooltip title="Lecture löschen">
+                    <span>
+                        <IconButton aria-label="Lecture löschen" color="error" disabled={!lecture} onClick={() => setDeleteDialogOpen(true)}>
+                            <DeleteIcon />
+                        </IconButton>
+                    </span>
+                </Tooltip>
             </div>
             <Spacer vertical={30} />
             <div className={style.textContainer}>
