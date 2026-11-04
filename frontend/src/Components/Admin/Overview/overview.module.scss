@@ -4,7 +4,13 @@
     width: 100%;
     padding: $padding;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: $flex-gap;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .oneLine {

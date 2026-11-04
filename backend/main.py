@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import os
 from statistics import mode
 import TaskScheduler
+import SyncManager
 from flask import helpers
 from flask import request
 from flask import send_from_directory
@@ -26,8 +27,10 @@ token_manager = authenticator.TokenManager()
 with app.app_context():
     db = Queries.Queries(sql_database)
 
+    sync_manager = SyncManager.SyncManager(app, db)
+
     taskScheduler = TaskScheduler.TaskScheduler(app)
-    taskScheduler.add_Daily_Task(db.create_Links)
+    taskScheduler.add_Daily_Task(sync_manager.run_scheduled)
     taskScheduler.start()
 
 
@@ -136,6 +139,41 @@ class lectures(Resource):
         Invalidates the current token
         """
         return util.build_response(db.get_lectures())
+
+
+@api.route('/lecture/<int:lecture_id>')
+class lecture(Resource):
+    @admin
+    def delete(self, lecture_id):
+        """
+        Deletes a lecture with its aliases and persons (the Nextcloud folder is kept)
+        """
+        if not db.delete_lecture(lecture_id):
+            return util.build_response("Lecture not found", 404)
+        util.log("Lecture", f"Deleted lecture {lecture_id}")
+        return util.build_response("OK")
+
+
+@api.route('/sync')
+class sync(Resource):
+    @admin
+    def get(self):
+        """
+        Status of the current or last sync with Nextcloud
+        """
+        return util.build_response(sync_manager.status())
+
+    @admin
+    def post(self):
+        """
+        Starts a sync with Nextcloud in the background (single attempt, no retries)
+
+        If a sync is already running, no new one is started (started = false)
+        """
+        started = sync_manager.start_manual()
+        if started:
+            util.log("Sync", "Manual sync started")
+        return util.build_response({"started": started, **sync_manager.status()})
 
 
 @api.route('/alias')

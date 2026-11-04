@@ -18,6 +18,20 @@ export type IDName = {
     name: string
 }
 
+export type SyncResult = {
+    created: number,
+    renewed: number,
+    withoutFolder: number
+}
+
+export type SyncStatus = {
+    running: boolean,
+    runId: number,
+    result: SyncResult | null,
+    error: string | null,
+    finishedAt: string | null
+}
+
 export type Share = {
     secret: "",
     links: Array<{
